@@ -2,26 +2,38 @@
 
 Life changes. Your money plan adapts. Independent educational prototype; not affiliated with Groww.
 
-## Current status
+## Status
 
-This is a local work-in-progress, not a production-ready or publicly deployed product. Five destinations, illustrative monthly cash flow, five scenario forms, scenario comparison, a local event timeline, and an honest AI-unavailable fallback are implemented. Browser interaction, mobile layout, accessibility, and all end-to-end scenario paths have not yet been verified. The manifest exists but installability and offline support are not verified.
-
-**AI is not implemented or enabled.** The companion endpoint does not call Gemini and cannot produce AI responses. Its deterministic fallback performs input validation and a limited keyword check; this is not a complete safety gate. Do not deploy as a production AI product until the requested structured provider integration, source grounding, numerical validation, adversarial safety tests and genuine golden-set evaluation are implemented and pass. The environment entries in `.env.example` are placeholders for that future work and currently have no effect.
-
-The reliability panel honestly shows no imported examples or results. The separate SIP Discovery Engine labels research excerpts for themes; these are not automatically valid expected answers for this assistant. A proper labelled assistant question set requires human review. No user study has been performed.
+This is a release candidate for local evaluation, not a verified production deployment. The five destinations, illustrative monthly cash-flow visualisation, five scenario forms, shared calculation engine, scenario comparison, a local event timeline, source library, Gemini integration, conservative answer gate and human evaluation workspace are implemented. The live Gemini path is disabled by default and has not been tested with real credentials. Interactive browser, mobile, accessibility, installability, security and public-deployment verification remain outstanding. No real user-study outcomes or golden-set scores are claimed.
 
 ## Run locally
 
-Requires Node.js compatible with Next.js 16. Run `npm install`, `npm run dev`, then open http://localhost:3000. Run `npm test` for deterministic calculation tests and `npm run build` for a production build. No secrets are needed for the current fallback.
+Requires a Node.js version supported by Next.js 16. Run `npm install`, `npm run dev`, then open http://localhost:3000. Run `npm test` and `npm run build` to validate. No key is needed for the deterministic fallback. To conduct a controlled live-provider test, copy `.env.example` to `.env.local`, set `GEMINI_API_KEY`, optionally set `GEMINI_MODEL`, and set `LIFEFLOW_AI_ENABLED=true` only after reviewing the release checklist below. Restart the server. Never put the key in client code or commit it.
 
-## Data and privacy
+## AI architecture and safety limits
 
-There is no database or account integration. Profile, scenarios and events live in React memory unless the user opts into localStorage on their device; the reset control removes them. The companion API receives the question and illustrative context, and its current fallback does not call external services or log financial inputs. The in-memory request limit is per server instance and is not suitable as a production distributed rate limit. Input fields are not yet equipped with reliable sensitive-data detection; users should not enter credentials or account identifiers.
+The server validates the request, recomputes profile and scenario figures using shared TypeScript functions, and makes a Gemini structured-output request for one of seven intent labels. The provider receives the question and limited scenario type/date-presence context, not salary or expense amounts. The server validates the exact schema and builds the displayed response using controlled educational text and deterministic values. The model cannot directly supply prose, numbers, citations or transactions. Unsupported account-specific questions and recognised recommendation requests receive an abstention. Provider errors and malformed output receive a deterministic fallback. Source links are attached only to the controlled SIP definition.
 
-## Source
+These protections do not establish perfect semantic classification, sensitive-data detection, or comprehensive investment-advice detection. A model can choose an irrelevant allowed template. The keyword filters are defense in depth, not proof of safety. Adversarial and human evaluation, real provider testing, and a broader source library are required before enabling the live path publicly. Do not record sensitive details in questions or scenario fields. The user-supplied question is sent to Gemini when the path is enabled.
 
-The source library records one SEBI educational booklet, verified on 2026-11-06. It supports the basic SIP definition only, not bank-specific payment rules. The current fallback does not claim its response is source-grounded. Source maintenance and additional official material are needed.
+## Scenario and data assumptions
 
-## Deployment and evaluation prerequisites
+The cash formula is take-home salary minus recurring expenses, SIP and applicable one-time expense. A recurring new expense is illustrated as an extra monthly cost. Rent assumes previous rent is included once in recurring expenses, and validates it does not exceed those expenses. A salary delay does not predict failure. An unknown new salary is shown as unknown. Results are estimates, not bank balances or verified transactions.
 
-Implement and test the AI provider abstraction and fail-closed quality gate; create a genuine labelled evaluation set and regression runner; verify sensitive-data handling, rate limiting, all scenarios, accessibility, PWA installation, and mobile/desktop interaction; connect a GitHub repository and Vercel project; deploy and verify the public URL. Record real user feedback using `MENTOR_TESTING.md`. No production URL, commit or user-study results are claimed.
+There is no database or account integration. Profile, scenarios and events stay in browser memory unless the user opts into localStorage. The reset control removes them. Evaluation cases and human reviews can be exported as JSON and re-imported; they are not automatically persisted. Local development uses a process-local request limit. On Vercel the companion API requires an Upstash Redis REST URL and token plus a separate rate-limit HMAC salt of at least 32 characters; it fails closed when the store is unavailable or misconfigured. It uses the Vercel forwarded address and stores only a keyed digest for a short window. Verify trusted proxy behavior for your deployment and test the shared limiter against a real store before release.
+
+## Evaluation
+
+The reliability panel imports an array of up to 15 human-labelled objects with `id`, `question`, `expected`, and `rationale`; it runs the real companion endpoint with a clearly disclosed illustrative profile. Reviewers label each dimension and outcome and enter corrections, then export a traceable JSON file with output, versions and timestamp. Re-import restores a prior export. No synthetic fixtures are represented as human labels, and no automated accuracy score is asserted. A small sample cannot establish production-wide accuracy. Existing research theme labels in the separate SIP Discovery Engine are not automatically valid expected answers for this companion. A proper answer set requires human review.
+
+## Sources
+
+The SEBI financial education booklet and AMFI SIP education page were checked on 2026-11-06 for their basic SIP definitions. They do not substantiate specific bank or fund-house payment rules. Source maintenance and additional official material are needed.
+
+## Release checklist
+
+- Obtain a server-side Gemini key and test live responses, errors and abuse paths with the feature flag enabled in a controlled environment.
+- Gather genuine human-labelled assistant cases, review actual outputs, and run a documented regression and safety suite before enabling AI publicly.
+- Configure and verify the shared Upstash rate limiter on Vercel, validate sensitive-data handling and review privacy/security controls.
+- Verify every interactive path, responsive layout, keyboard accessibility and PWA installation in real browsers; complete the tests in `MENTOR_TESTING.md` with at least three consenting target users.
+- Connect a GitHub repository and Vercel project, set server-only environment variables, deploy, and verify the actual public URL. No deployment or user-study result is currently claimed.

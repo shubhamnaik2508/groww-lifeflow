@@ -1,2 +1,2 @@
 import type {MetadataRoute} from 'next';
-export default function manifest():MetadataRoute.Manifest{return {name:'Groww LifeFlow',short_name:'LifeFlow',description:'Life changes. Your money plan adapts.',start_url:'/',display:'standalone',background_color:'#f5f7f3',theme_color:'#11201d'};}
+export default function manifest():MetadataRoute.Manifest{return {name:'Groww LifeFlow',short_name:'LifeFlow',description:'Life changes. Your money plan adapts.',start_url:'/',display:'standalone',background_color:'#f5f7f3',theme_color:'#11201d',icons:[{src:'/icon-192.png',sizes:'192x192',type:'image/png'},{src:'/icon-512.png',sizes:'512x512',type:'image/png'}]};}
