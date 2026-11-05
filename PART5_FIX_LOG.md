@@ -1,0 +1,11 @@
+# Groww LifeFlow — fix log
+
+| Defect | Severity | Root cause and changed files | Regression evidence | Status |
+|---|---|---|---|---|
+| Oversized request body read before limit | P1 availability | `app/api/companion/route.ts`, `lib/request-security.ts`: checked Content-Length then buffered the whole body. Added streaming byte cap, 413 and content-encoding rejection. | Before fix oversized stream returned 400 after read; `lib/route-security.test.ts` and `lib/companion.test.ts` pass after fix. | Fixed locally; live ingress not tested. |
+| Spoofable forwarded IP on untrusted non-Vercel host | P2 | `lib/request-security.ts`, route: arbitrary forwarding headers were used as limiter keys. Non-Vercel now shares one conservative bucket; Vercel accepts one syntactically valid platform header. | Forged headers on non-Vercel and multi-value Vercel headers tested. | Mitigated locally; real edge behavior remains unverified. A shared local bucket can limit legitimate simultaneous users. |
+| Reset left drafts and in-flight response | P2 privacy | `app/page.tsx`: reset cleared saved data but not draft fields, pending requests or persistence opt-in. It now clears draft state and aborts/invalidates pending responses. | Edge checked drafts, localStorage and a deliberately delayed response after reset. | Fixed for tested browser flow. |
+| Advice-question guard missed plural and guarantee wording | P1 | `lib/companion.ts`: pattern did not cover plural investments or guaranteed returns; broadened guard and added instruction-override fallback. | Initial targeted run failed 2 cases; final synthetic safety cases pass. | Fixed for tested phrases; comprehensive semantic safety remains unverified. |
+| Browser back/direct destinations did not track navigation | P2 | `app/page.tsx`: destination existed only in component state. Added URL fragments and hashchange synchronization. | Edge direct fragment and browser-back check passed. | Fixed for tested destinations. |
+
+`npm test` passed 61 tests. The production build passed and 22 Playwright Core/Edge checks passed. Security patch review was performed independently; Vercel proxy provenance and real shared-store behavior remain deployment-dependent and unverified. No production environment or deployment was modified.
