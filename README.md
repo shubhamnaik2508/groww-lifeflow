@@ -8,7 +8,7 @@ This is a release candidate for local evaluation, not a verified production depl
 
 ## Run locally
 
-Requires a Node.js version supported by Next.js 16. Run `npm install`, `npm run dev`, then open http://localhost:3000. Run `npm test` and `npm run build` to validate. No key is needed for the deterministic fallback. To conduct a controlled live-provider test, copy `.env.example` to `.env.local`, set `GEMINI_API_KEY`, optionally set `GEMINI_MODEL`, and set `LIFEFLOW_AI_ENABLED=true` only after reviewing the release checklist below. Restart the server. Never put the key in client code or commit it.
+Requires a Node.js version supported by Next.js 16. Run `npm install`, `npm run dev`, then open http://localhost:3000. Run `npm test` and `npm run build` to validate. No key is needed for the deterministic fallback. For a controlled live-provider test, configure `GEMINI_API_KEY`, optionally `GEMINI_MODEL`, and `LIFEFLOW_AI_ENABLED=true` in the runtime environment only after reviewing the release checklist below. Restart the server. Never put the key in client code or commit it.
 
 ## AI architecture and safety limits
 
