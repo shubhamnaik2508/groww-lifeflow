@@ -2,3 +2,9 @@ node_modules
 .next
 .env*
 coverage
+
+test-results
+*.tsbuildinfo
+
+.env.local
+!.env.example

@@ -1,39 +1,61 @@
 # Groww LifeFlow
 
-Life changes. Your money plan adapts. Independent educational prototype; not affiliated with Groww.
+Life changes. Your money plan adapts. An independent educational prototype for first-time salaried investors in India. Not affiliated with Groww.
 
-## Status
+**Journey:** first salary → life event → cash-flow impact → Groq AI explanation → evaluation gate → safe next step.
 
-This is a release candidate for local evaluation, not a verified production deployment. The five destinations, illustrative monthly cash-flow visualisation, five scenario forms, shared calculation engine, scenario comparison, a local event timeline, source library, Gemini integration, conservative answer gate and human evaluation workspace are implemented. The live Gemini path is disabled by default and has not been tested with real credentials. Interactive browser, mobile, accessibility, installability, security and public-deployment verification remain outstanding. No real user-study outcomes or golden-set scores are claimed.
+## Status (2026-11-07)
+
+- Five areas: Home, Scenario Lab (Life-to-SIP Scenario Simulator), AI Companion, My Journey and AI Reliability. Three themes, a collapsible desktop dock and mobile bottom navigation.
+- **The AI Companion uses Groq** (server-side, `groq-sdk`, default model `openai/gpt-oss-120b`) behind a fail-closed evaluation gate. Real Groq calls have been verified locally (`GROQ_API_TEST_RESULTS.md`). Users need no download or login.
+- **Action needed:** the `GROQ_MODEL` in your `.env.local` (`llama-3.3-70b-versatile`) is not available to your Groq account. Change it to `openai/gpt-oss-120b`; until then, the app shows labelled fallbacks.
+- **Not deployed.** No public URL exists yet (`DEPLOYMENT.md`).
+- **Golden set:** no genuine human-labelled companion cases exist. No accuracy is claimed (`GOLDEN_SET_EVALUATION.md`).
+- Compliance summary: `PART5_COMPLIANCE_REPORT.md`.
 
 ## Run locally
 
-Requires a Node.js version supported by Next.js 16. Run `npm install`, `npm run dev`, then open http://localhost:3000. Run `npm test` and `npm run build` to validate. No key is needed for the deterministic fallback. For a controlled live-provider test, configure `GEMINI_API_KEY`, optionally `GEMINI_MODEL`, and `LIFEFLOW_AI_ENABLED=true` in the runtime environment only after reviewing the release checklist below. Restart the server. Never put the key in client code or commit it.
+Requires Node.js 20 or later.
 
-## AI architecture and safety limits
+```bash
+npm install
+cp .env.example .env.local   # then put your own GROQ_API_KEY in .env.local
+npm run build
+npm run start
+```
 
-The server validates the request, recomputes profile and scenario figures using shared TypeScript functions, and makes a Gemini structured-output request for one of seven intent labels. The provider receives the question and limited scenario type/date-presence context, not salary or expense amounts. The server validates the exact schema and builds the displayed response using controlled educational text and deterministic values. The model cannot directly supply prose, numbers, citations or transactions. Unsupported account-specific questions and recognised recommendation requests receive an abstention. Provider errors and malformed output receive a deterministic fallback. Source links are attached only to the controlled SIP definition.
+Open http://localhost:3000. Without a key, the AI Companion shows the labelled rule-based guide and everything else works.
 
-These protections do not establish perfect semantic classification, sensitive-data detection, or comprehensive investment-advice detection. A model can choose an irrelevant allowed template. The keyword filters are defense in depth, not proof of safety. Adversarial and human evaluation, real provider testing, and a broader source library are required before enabling the live path publicly. Do not record sensitive details in questions or scenario fields. The user-supplied question is sent to Gemini when the path is enabled.
+| Command | What it does |
+| --- | --- |
+| `npm test` | Unit tests: calculations, context, gate, pipeline, Groq adapter and route, WebLLM adapter |
+| `npm run typecheck` | TypeScript |
+| `npm run test:e2e` | Browser suites in Edge against `LIFEFLOW_TEST_URL` (default `http://localhost:3000`) |
+| `npm run test:groq -- --url http://localhost:3000` | Real Groq connectivity and end-to-end test (reads `.env.local`, never prints the key) |
+| `npm run eval:golden -- <dataset.json> --url …` | Runs an evaluation file through the app's pipeline; saves results in `evaluation/runs/` |
+| `npm run export:evidence-log -- "<groww_sip_lab.db>" evaluation/evidence-log-export.json` | Read-only export of the SIP Discovery Engine Evidence Log for import |
+| `npm run test:real-model` | Optional: experimental on-device model test (large download, needs WebGPU) |
 
-## Scenario and data assumptions
+## How it works
 
-The cash formula is take-home salary minus recurring expenses, SIP and applicable one-time expense. A recurring new expense is illustrated as an extra monthly cost. Rent assumes previous rent is included once in recurring expenses, and validates it does not exceed those expenses. A salary delay does not predict failure. An unknown new salary is shown as unknown. Results are estimates, not bank balances or verified transactions.
+See `GROQ_AGENT_ARCHITECTURE.md`. In short:
 
-There is no database or account integration. Profile, scenarios and events stay in browser memory unless the user opts into localStorage. The reset control removes them. Evaluation cases and human reviews can be exported as JSON and re-imported; they are not automatically persisted. Outside Vercel, requests share a conservative process-local rate-limit bucket: this prevents forged forwarding headers from creating identities, but one client can temporarily limit others and multiple instances do not share limits. On Vercel the companion API requires an Upstash Redis REST URL and token plus a separate rate-limit HMAC salt of at least 32 characters; it fails closed when the store is unavailable or misconfigured. It uses the Vercel forwarded address and stores only a keyed digest for a short window. Verify trusted proxy behavior for your deployment and test the shared limiter against a real store before release.
+1. **LifeFlow calculates every figure** in TypeScript and labels each one *entered by you* or *calculated by LifeFlow*.
+2. **Pre-AI rules** stop sensitive data, prompt injection, advice requests and bank-rule questions, and ask for missing context.
+3. **Groq explains** using those facts, their formulas, assumptions and verbatim SEBI/AMFI excerpts. Its output is strict JSON in which every claim lists its support.
+4. **The gate** checks schema, arithmetic, claim-to-source support, investment safety and uncertainty. Only a fully passing answer is shown as AI. Otherwise the labelled rule-based guide is shown, with the reason.
+5. **The UI** shows a plain-language verification panel and the full check list, built only from checks that actually ran.
 
-## Evaluation
+The AI never accesses an investment or bank account and cannot execute transactions.
 
-The reliability panel imports an array of up to 15 human-labelled objects with `id`, `question`, `expected`, and `rationale`; it runs the real companion endpoint with a clearly disclosed illustrative profile. Reviewers label each dimension and outcome and enter corrections, then export a traceable JSON file with output, versions and timestamp. Re-import restores a prior export. No synthetic fixtures are represented as human labels, and no automated accuracy score is asserted. A small sample cannot establish production-wide accuracy. Existing research theme labels in the separate SIP Discovery Engine are not automatically valid expected answers for this companion. A proper answer set requires human review.
+## Data and privacy
 
-## Sources
+There is no database and no account integration. The profile, scenarios and events stay in the browser unless the user opts into storage on the device. **Reset illustrative data** removes them. In Groq mode, the question, illustrative figures and scenario inputs go to LifeFlow's server and then to Groq. No names, PAN, Aadhaar or account details are collected. Never enter them.
 
-The SEBI financial education booklet and AMFI SIP education page were checked on 2026-11-06 for their basic SIP definitions. They do not substantiate specific bank or fund-house payment rules. Source maintenance and additional official material are needed.
+## Other documents
 
-## Release checklist
-
-- Obtain a server-side Gemini key and test live responses, errors and abuse paths with the feature flag enabled in a controlled environment.
-- Gather genuine human-labelled assistant cases, review actual outputs, and run a documented regression and safety suite before enabling AI publicly.
-- Configure and verify the shared Upstash rate limiter on Vercel, validate sensitive-data handling and review privacy/security controls.
-- Verify every interactive path, responsive layout, keyboard accessibility and PWA installation in real browsers; complete the tests in `MENTOR_TESTING.md` with at least three consenting target users.
-- Connect a GitHub repository and Vercel project, set server-only environment variables, deploy, and verify the actual public URL. No deployment or user-study result is currently claimed.
+- `AI_SETUP.md`: configuration, model choice, experimental on-device model.
+- `AI_GATE_TEST_RESULTS.md`, `GROQ_API_TEST_RESULTS.md`, `GOLDEN_SET_EVALUATION.md`: test evidence.
+- `MENTOR_TESTING_GUIDE.md`, `MENTOR_TESTING.md`: mentor and user testing.
+- `AI_EVAL_AUDIT.md`: earlier on-device model runs (2026-11-06).
+- `fixtures/README.md`: evaluation file format.

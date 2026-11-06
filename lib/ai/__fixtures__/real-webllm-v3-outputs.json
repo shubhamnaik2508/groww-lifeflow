@@ -1,0 +1,201 @@
+{
+ "_provenance": "Raw outputs from the experimental on-device model Qwen2.5-1.5B-Instruct-q4f16_1-MLC (WebLLM 0.2.87, prompt lifeflow-agent-v3.2) in Edge on an NVIDIA RTX 4070 Laptop GPU on 2026-11-07, engineering-fixture cases. Real model output; not human-labelled.",
+ "outputs": {
+  "fx-expense-reference": {
+   "summary": "Unexpected expenses can affect your cash flow. After the one-time expense, you'll have less money left for LifeFlow.",
+   "points": [
+    {
+     "text": "Before the expense, LifeFlow estimates ₹9,000.00 (your current monthly picture).",
+     "supports": [
+      "scenario_before"
+     ]
+    },
+    {
+     "text": "After the one-time expense of ₹5,000.00, the estimate becomes ₹4,000.00.",
+     "supports": [
+      "one_time_expense",
+      "scenario_after"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review the expenses you entered for this month.",
+    "Check your available balance through your bank's official app or branch."
+   ],
+   "uncertainty": "This is an estimate from your entries and may differ from your actual bank balance.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-salary-delay": {
+   "summary": "You need to check your bank account for the missed SIP. If there is a delay, LifeFlow estimates ₹9,000 left after expenses and recurring monthly payments.",
+   "points": [
+    {
+     "text": "Before the missed SIP, LifeFlow estimates ₹9,000 left after your recurring expenses and your SIP commitment.",
+     "supports": [
+      "scenario_before"
+     ]
+    },
+    {
+     "text": "After the missed SIP on 2026-12-05, the estimate becomes ₹8,997 (remaining cash before the missed SIP).",
+     "supports": [
+      "remaining_now",
+      "scenario_before"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review your bank statements for the missed payment date.",
+    "Check if you have sufficient funds in your account."
+   ],
+   "uncertainty": "This cannot know whether the missed payment will succeed or fail.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-rent": {
+   "summary": "Your monthly cash will decrease after the rent increase.",
+   "points": [
+    {
+     "text": "After the rent increase, your estimated remaining cash becomes ₹7,000.00.",
+     "supports": [
+      "rent_change",
+      "scenario_after"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review your expenses for this month."
+   ],
+   "uncertainty": "This is an estimate based on your current figures and may not reflect your actual bank balance.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-job-unknown": {
+   "summary": "The income gap will affect your monthly picture. You need to adjust your expenses, save more money, or increase your SIP commitment.",
+   "points": [
+    {
+     "text": "Before the transition, you have ₹9,000 left after recurring expenses and your current SIP. This is your estimated remaining cash (current monthly picture).",
+     "supports": [
+      "scenario_before"
+     ]
+    },
+    {
+     "text": "After the new salary of ₹30,000, your estimate becomes ₹18,000 - ₹18,000 - ₹3,000 = ₹3,000. The one-time expense affects only the illustrated month.",
+     "supports": [
+      "previous_salary",
+      "income_gap_days",
+      "remaining_now",
+      "scenario_before",
+      "sip_date"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review your expenses for this month.",
+    "Check your bank account balance."
+   ],
+   "uncertainty": "This cannot know what other costs fall in the same month.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-failure": {
+   "summary": "You should check your bank account for the missed SIP payment.",
+   "points": [
+    {
+     "text": "The missed payment is recorded as a failed transaction. Check your bank statement to see if it shows a negative entry for the amount of the missed SIP.",
+     "supports": [
+      "reported_status",
+      "sip_debit_date"
+     ]
+    },
+    {
+     "text": "If you have not made any other payments in the past few days, review your recurring expenses and ensure there are no errors or additional charges that might affect your remaining cash.",
+     "supports": [
+      "remaining_now",
+      "recurring_expenses"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review your bank statements",
+    "Check your recurring monthly expenses",
+    "Verify your bank details (account number, IFSC code)",
+    "Contact your bank customer care with the missed transaction details"
+   ],
+   "uncertainty": "This cannot determine why the payment failed. The user may need to contact their bank directly.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-sip-basics": {
+   "summary": "An SIP is a systematic investment plan where you invest a fixed amount regularly in mutual funds.",
+   "points": [
+    {
+     "text": "A Systematic Investment Plan (SIP) allows an investor to deposit a regular sum of money into their investments, such as mutual funds. This helps build a diversified portfolio over time.",
+     "supports": [
+      "sebi-sip",
+      "amfi-sip"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review your current investment accounts and understand how the SIP works.",
+    "Check if there are any missed instalments or adjustments needed for your existing SIPs."
+   ],
+   "uncertainty": "This cannot know details about specific bank charges, one-time expenses, or past investment performance.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-mandate": {
+   "summary": "A mandate is a legal document that authorizes your bank to automatically transfer funds from your account for the purpose of making regular investments.",
+   "points": [
+    {
+     "text": "When you set up an SIP, LifeFlow generates a 'mandate' form. This is a legal document signed by both parties (you and the fund house) which allows them to debit your bank account every month.",
+     "supports": [
+      "sebi-sip-mandate",
+      "amfi-consecutive-missed"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review your current investment mandates.",
+    "Check if there are any missed instalments."
+   ],
+   "uncertainty": "This covers how a mandate works but does not address why it fails or what specific charges might apply.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-missed-instalment": {
+   "summary": "If you miss an SIP instalment, the fund house may stop depositing it and return unused cheques. No penalty is levied.",
+   "points": [
+    {
+     "text": "The missed instalment will not be debited from your bank account.",
+     "supports": [
+      "A2"
+     ]
+    },
+    {
+     "text": "Your remaining cash after expenses and recurring instalments will remain unaffected.",
+     "supports": [
+      "remaining_now",
+      "recurring_expenses",
+      "sip_amount"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review your bank statement for any missed instalments.",
+    "Check if there are sufficient funds in your bank account."
+   ],
+   "uncertainty": "This does not cover bank charges or specific fund-house practices.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  }
+ }
+}

@@ -1,0 +1,121 @@
+{
+ "_provenance": "Raw outputs produced by Qwen2.5-1.5B-Instruct-q4f16_1-MLC (WebLLM 0.2.87, prompt lifeflow-explainer-v1) in headless Edge on 2026-11-06 for the engineering fixture cases. Real model output, not human-labelled.",
+ "outputs": {
+  "fx-expense-reference": {
+   "summary": "The unexpected health expense will reduce your remaining cash by ₹5,000. This affects both your monthly take-home salary and recurring expenses.",
+   "explanation": "Your current estimated remaining cash is ₹9,000. After the one-time health expense of ₹5,000, it will decrease to ₹4,000. Your monthly take-home salary is ₹30,000, which after deducting ₹18,000 for recurring expenses and ₹3,000 for the SIP commitment leaves you with ₹9,000. The one-time health expense reduces this further.",
+   "facts_used": [
+    "salary",
+    "recurring_expenses",
+    "sip_amount",
+    "sip_date",
+    "remaining_now",
+    "one_time_expense"
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Calculate your total monthly income (including salary and other sources)",
+    "Review your recurring expenses",
+    "Consider how much money you can allocate towards an emergency fund or savings"
+   ],
+   "uncertainty": "You need more information about your specific financial situation.",
+   "source_ids": [
+    "sebi-financial-position"
+   ],
+   "needs_clarification": false,
+   "clarifying_question": ""
+  },
+  "fx-salary-delay": {
+   "summary": "You need to check your available balance before the SIP date.",
+   "explanation": "Your current take-home salary is ₹30,000. After deducting recurring expenses and a monthly SIP commitment of ₹3,000, you have ₹9,000 left. The upcoming SIP on 2026-12-05 will debit from this remaining amount. If it doesn't succeed, you might need to add more money or adjust your SIP amounts.",
+   "facts_used": [
+    "salary",
+    "recurring_expenses",
+    "sip_amount",
+    "remaining_now"
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Check your bank account for any pending transactions.",
+    "Review your bank statements for the past few months."
+   ],
+   "uncertainty": "The exact outcome depends on whether the salary delay affects when the SIP can be debited.",
+   "source_ids": [
+    "sebi-sip-mandate",
+    "amfi-sip-debit"
+   ],
+   "needs_clarification": false,
+   "clarifying_question": ""
+  },
+  "fx-failure": {
+   "summary": "Check your bank account for the upcoming SIP date and transaction.",
+   "explanation": "Your salary is ₹30,000. The recurring expenses are ₹18,000. Subtracting these from your take-home salary leaves you with ₹9,000 available for a monthly SIP commitment. Your current estimate of remaining cash before the life event is also ₹9,000. The reason for the reported failure could be due to insufficient funds or an issue with the debit mandate.",
+   "facts_used": [
+    "salary",
+    "recurring_expenses",
+    "sip_amount",
+    "sip_date",
+    "remaining_now",
+    "reported_status",
+    "sip_debit_date"
+   ],
+   "missing_information": [
+    "The exact amount in your bank account",
+    "Details about why the payment failed (e.g., insufficient funds)",
+    "If there's any error on the application form or if it was manually declined"
+   ],
+   "next_steps": [
+    "Review your bank statement for transactions leading up to the SIP date.",
+    "Contact your bank to check their records and see if they have processed the SIP as usual.",
+    "Verify that your bank mandate has not expired."
+   ],
+   "uncertainty": "You might need to contact customer support for further assistance.",
+   "source_ids": [],
+   "needs_clarification": false,
+   "clarifying_question": ""
+  },
+  "fx-sip-basics": {
+   "summary": "An SIP is a regular investment plan where you invest a fixed amount in mutual funds every month.",
+   "explanation": "To calculate your remaining cash, subtract recurring expenses and the monthly SIP commitment from your take-home salary. For example, with ₹30,000 left after expenses, you can afford to save ₹9,000 for an SIP.",
+   "facts_used": [
+    "salary",
+    "recurring_expenses",
+    "sip_amount"
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Calculate your remaining cash",
+    "Find out if there are any other one-time expenses or taxes",
+    "Check if your bank account has sufficient funds"
+   ],
+   "uncertainty": "This does not consider the interest rate on investments, which might affect the total value over time.",
+   "source_ids": [
+    "sebi-sip",
+    "amfi-sip"
+   ],
+   "needs_clarification": false,
+   "clarifying_question": ""
+  },
+  "fx-mandate": {
+   "summary": "A mandate is a legal document that authorizes your bank to automatically transfer a pre-determined amount from your account every month for investments.",
+   "explanation": "The user's salary (₹30,000) and recurring expenses (₹18,000) are subtracted from their take-home salary. The remaining money after these commitments (₹9,000) goes towards the SIP commitment of ₹3,000 per month. This leaves them with an estimated remaining cash of ₹9,000. To understand more about mandates, you can check how banks handle standing instructions or look at examples provided by SEBI.",
+   "facts_used": [
+    "salary",
+    "recurring_expenses",
+    "sip_amount",
+    "remaining_now"
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Check if your bank allows automatic transfers through a standing instruction.",
+    "Learn more about mutual funds and how they work."
+   ],
+   "uncertainty": "This cannot tell you what specific details will be included in your bank mandate form.",
+   "source_ids": [
+    "sebi-sip-mandate"
+   ],
+   "needs_clarification": false,
+   "clarifying_question": ""
+  }
+ }
+}
