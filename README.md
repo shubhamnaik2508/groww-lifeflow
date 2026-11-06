@@ -11,6 +11,7 @@ Life changes. Your money plan adapts. An independent educational prototype for f
 - **Live:** https://groww-lifeflow.vercel.app (verified 2026-11-07; see `DEPLOYMENT.md`).
 - **Golden set:** no genuine human-labelled companion cases exist. No accuracy is claimed (`GOLDEN_SET_EVALUATION.md`).
 - Compliance summary: `PART5_COMPLIANCE_REPORT.md`.
+- **Market Pulse** (`/#market-pulse`): Daily Market Brief for NIFTY 50 and SENSEX, a neutral SIP Decision Explorer, history, news and a gated AI insight. Index data stays off until a licensed source is configured; see `MARKET_PULSE.md`.
 
 ## Run locally
 
@@ -33,6 +34,8 @@ Open http://localhost:3000. Without a key, the AI Companion shows the labelled r
 | `npm run test:groq -- --url http://localhost:3000` | Real Groq connectivity and end-to-end test (reads `.env.local`, never prints the key) |
 | `npm run eval:golden -- <dataset.json> --url …` | Runs an evaluation file through the app's pipeline; saves results in `evaluation/runs/` |
 | `npm run export:evidence-log -- "<groww_sip_lab.db>" evaluation/evidence-log-export.json` | Read-only export of the SIP Discovery Engine Evidence Log for import |
+| `npm run test:market-pulse` | Market Pulse browser test (synthetic data inside the test only) |
+| `npm run test:market-pulse:live` | Opt-in: Market Pulse analyst against real Groq with synthetic evidence |
 | `npm run test:real-model` | Optional: experimental on-device model test (large download, needs WebGPU) |
 
 ## How it works
