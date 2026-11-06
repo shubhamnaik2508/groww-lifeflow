@@ -7,9 +7,8 @@ Life changes. Your money plan adapts. An independent educational prototype for f
 ## Status (2026-11-07)
 
 - Five areas: Home, Scenario Lab (Life-to-SIP Scenario Simulator), AI Companion, My Journey and AI Reliability. Three themes, a collapsible desktop dock and mobile bottom navigation.
-- **The AI Companion uses Groq** (server-side, `groq-sdk`, default model `openai/gpt-oss-120b`) behind a fail-closed evaluation gate. Real Groq calls have been verified locally (`GROQ_API_TEST_RESULTS.md`). Users need no download or login.
-- **Action needed:** the `GROQ_MODEL` in your `.env.local` (`llama-3.3-70b-versatile`) is not available to your Groq account. Change it to `openai/gpt-oss-120b`; until then, the app shows labelled fallbacks.
-- **Not deployed.** No public URL exists yet (`DEPLOYMENT.md`).
+- **The AI Companion uses Groq** (server-side, `groq-sdk`, default model `openai/gpt-oss-120b`) behind a fail-closed evaluation gate. Real Groq calls have been verified locally (`GROQ_API_TEST_RESULTS.md`) and on the public site. Users need no download or login.
+- **Live:** https://groww-lifeflow.vercel.app (verified 2026-11-07; see `DEPLOYMENT.md`).
 - **Golden set:** no genuine human-labelled companion cases exist. No accuracy is claimed (`GOLDEN_SET_EVALUATION.md`).
 - Compliance summary: `PART5_COMPLIANCE_REPORT.md`.
 

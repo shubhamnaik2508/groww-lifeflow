@@ -20,14 +20,14 @@ No Groq requests were made, and no environment variable values were printed.
 | Claims about accounts and transactions | Disclaimer: does not access accounts or execute transactions; no such code exists | PASS |
 | Affiliation | Now states "Independent educational prototype, not affiliated with or endorsed by Groww" in the UI and metadata | PASS (fixed) |
 | Privacy messaging | Companion explains that the question and figures go to LifeFlow's server and Groq; local storage is opt-in; reset available | PASS |
-| **Version control** | GitHub `main` = `8e9b865`; **all Groq, gate, Reliability and audit work is uncommitted** | **FAIL (P0)** |
-| **Vercel deployment** | No `.vercel` link, no deployment URL | **FAIL (P0)** |
-| HTTPS, HSTS, real proxy behaviour | Requires a deployment | NOT VERIFIED |
+| Version control | GitHub `main` = `8761625` (PR #1 merged) | PASS |
+| Vercel deployment | https://groww-lifeflow.vercel.app live; HTTPS with HSTS; status endpoint reports AI ready; no key in responses | PASS |
+| HTTPS, HSTS | `Strict-Transport-Security` present on production | PASS |
 
 ## Outstanding risks
 
-1. **Uncommitted work (P0).** A disk problem or accidental reset would lose all recent work, and deployment from GitHub would ship the old version.
-2. **No deployment (P0).** Mentors cannot access the product.
+1. ~~Uncommitted work~~: resolved; PR #1 merged, `main` = `8761625`.
+2. ~~No deployment~~: resolved; https://groww-lifeflow.vercel.app verified 2026-11-07.
 3. **Groq free-tier rate limits.** Bursts give labelled fallbacks; `LIFEFLOW_RATE_LIMIT_MODE=memory` is per-instance on Vercel.
 4. **Data sent to Groq.** Questions and illustrative figures go to a third party. Groq's data-use terms have not been reviewed in this project.
 5. **No CSP and no lint or CI.** Lower assurance against regressions and injection.

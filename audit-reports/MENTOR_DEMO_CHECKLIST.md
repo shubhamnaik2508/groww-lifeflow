@@ -1,6 +1,6 @@
 # Mentor demo checklist
 
-**URL:** _not yet deployed_. After deployment, replace this line with the verified public URL. Until then, the demo is local: `npm run build && npm run start`, then open http://localhost:3000. That needs `GROQ_API_KEY` and `GROQ_MODEL=openai/gpt-oss-120b` in `.env.local`.
+**URL:** **https://groww-lifeflow.vercel.app** (verified 2026-11-07). Opens in the Blue Oceanic theme.
 
 No login and no download. Use illustrative figures only.
 

@@ -1,6 +1,15 @@
 # Final submission readiness (2026-11-07)
 
-**Verdict: NOT READY.** Independent assessment: **58/100 before this audit's fixes, 64/100 after.** This is not an official NextLeap grade.
+> **Deployment update (2026-11-07):** PR #1 was merged (`main` = `8761625`) and the public production site **https://groww-lifeflow.vercel.app** was verified the same day:
+> - status endpoint: `ai_available: true`, model `openai/gpt-oss-120b`, prompt v3.2, rate limiter in memory mode;
+> - a live reference answer passed every quality check (₹9,000 → ₹4,000) in 1.5 s, and an advice question was stopped by the safety rule;
+> - browser suites against the public URL: mentor journey 23/23, simulator 10/10, Groq companion 7/7, model states 7/7, rule-based guide and themes pass;
+> - accessibility audit: 0 overflow, 0 small text, 0 low contrast, 0 console errors across 25 page-widths;
+> - Blue Oceanic is the default theme; no login is required.
+>
+> Updated independent score: **68 / 100**. Requirements passed: **8 / 18**. **P0 blockers: 3** (user testing, golden set, research evidence).
+
+**Verdict (unchanged): NOT READY.** Independent assessment: **58/100 before this audit's fixes, 64/100 after.** This is not an official NextLeap grade.
 
 ## Completed (PASS, with evidence)
 
@@ -22,21 +31,21 @@
 | Requirement | Status | Missing |
 |---|---|---|
 | Research-backed problem and evidence | PARTIAL / NOT VERIFIED | Genuine research; the Evidence Log has 0 genuine records |
-| Functional AI-native MVP | PARTIAL | Public deployment |
+| Functional AI-native MVP | **PASS** (deployed 2026-11-07) | — |
 | Golden-set measurement | FAIL | Human-labelled companion cases (0 exist) |
 | AI vs non-AI justification | PARTIAL | User evidence that AI adds value |
-| Public deployment | FAIL | Vercel deployment and a verified URL |
-| Mentor can attempt a real task | NOT VERIFIED | Public URL and a mentor attempt |
+| Public deployment | **PASS**: https://groww-lifeflow.vercel.app | — |
+| Mentor can attempt a real task | PARTIAL | A mentor attempt |
 | Genuine target-user testing (3 or more) | FAIL | Sessions (protocol provided) |
 | Documented product iterations | PARTIAL | User-driven iterations |
 | Public AI Discovery Engine | NOT VERIFIED | Public URL; genuine data |
 | Separate AI Evidence Log | FAIL | Genuine records (CSV has 0 rows; database has 20 synthetic) |
 | Final presentation and submission artefacts | FAIL | LifeFlow deck or three-pager |
 
-## Submission blockers (P0): 5
+## Submission blockers (P0): 3 remaining (2 resolved)
 
-1. **Commit and push.** GitHub `main` is at `8e9b865`; all recent work is local only.
-2. **Deploy** to Vercel (needs your approval) and verify the public URL.
+1. ~~Commit and push~~: **done** (`main` = `8761625`).
+2. ~~Deploy and verify the public URL~~: **done** (https://groww-lifeflow.vercel.app).
 3. **Run 3 or more genuine target-user sessions** (`USER_TESTING_PROTOCOL.md`) and record the findings and changes.
 4. **Create a human-labelled golden set** (20–50 cases) and run it via the Reliability panel or `npm run eval:golden`.
 5. **Provide research evidence** for the problem: populate the Evidence Log with genuine, attributed records.
