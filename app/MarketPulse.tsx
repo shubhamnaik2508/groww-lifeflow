@@ -61,7 +61,7 @@ function Hero({pulse}:{pulse:Pulse|null}){
   <div className="mp-evidence"><b>Evidence</b><ul>
    {s.sources.map(x=><li key={x.url}><a href={x.url} target="_blank" rel="noreferrer">{x.name} ↗</a> <small>{x.attribution}</small></li>)}
    {citedNews(b,s.news).map(n=><li key={n.id}><a href={n.url} target="_blank" rel="noreferrer">{n.publisher}: {n.title} ↗</a> <small>{day(n.publishedAt)}</small></li>)}
-  </ul><small>Last successful update: {stamp(s.updatedAt)}</small></div>
+  </ul><small>Last successful update: {stamp(s.updatedAt)}{pulse.checkedAt&&pulse.checkedAt!==s.updatedAt?<> · Last checked: {stamp(pulse.checkedAt)}</>:null}{pulse.lastRunFailed?<> · The latest scheduled refresh did not complete; these are the last verified figures.</>:null}</small></div>
  </section>;
 }
 const citedNews=(b:Brief,news:NewsItem[])=>{const ids=new Set(b.analysis?[b.analysis.verdict_summary,...b.analysis.context].flatMap(c=>c.supports):[]);return news.filter(n=>ids.has(n.id))};

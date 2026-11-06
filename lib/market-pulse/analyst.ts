@@ -42,7 +42,7 @@ export async function analyse(e:Evidence,generate:Generate|null,model:string|nul
  if(!generate)return fallback('AI is not configured on this server.');
  let raw:unknown;
  try{
-  const text=await generate({messages:buildMessages(e),schema:analysisJsonSchema,signal:AbortSignal.timeout(28000)});
+  const text=await generate({messages:buildMessages(e),schema:analysisJsonSchema,signal:AbortSignal.timeout(25000)});
   raw=JSON.parse(text);
  }catch(err){return fallback(err instanceof SyntaxError?'The AI response was not valid JSON.':(err as {message?:string})?.message?.slice(0,200)??'The AI request failed.')}
  const result=evaluate(raw,e);

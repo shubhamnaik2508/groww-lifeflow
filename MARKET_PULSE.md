@@ -49,7 +49,7 @@ It is educational only. It makes no recommendations and executes nothing.
 Licensed index source (EODHD, licence-gated) ─┐
 SEBI RSS · GDELT · GNews (optional) ──────────┤
                                                ▼
-     /api/market-pulse/refresh   (Vercel Cron, 18:30 and 20:30 IST, Mon–Fri; CRON_SECRET)
+     /api/market-pulse/refresh   (Vercel Cron: 18:30 and 20:30 IST Mon–Fri, 09:00 IST Tue–Sat catch-up; CRON_SECRET; Redis lock)
         1. fetch end-of-day closes (≈1 year) for NIFTY 50 and SENSEX
         2. verify: valid trading dates (no weekends or future dates; today only after 15:30 IST),
            no duplicates, plausible moves, change = close − previous, % = change ÷ previous × 100
@@ -131,7 +131,60 @@ curl -H "Authorization: Bearer $CRON_SECRET" "https://groww-lifeflow.vercel.app/
    - the session date matches the exchange's latest session;
    - compare both closes with nseindia.com and bseindia.com.
 
-Vercel Cron on Hobby runs once a day per job, within the scheduled hour. Two jobs run on weekdays: 13:00 and 15:00 UTC (18:30 and 20:30 IST).
+See **Automatic daily updates** below for the schedule and how the job behaves.
+
+## Automatic daily updates
+
+After the one-time setup, Market Pulse refreshes itself every trading day. It needs no Claude Code, manual edits, commits or redeploys.
+
+### Scheduler evaluation
+
+The project's plan couldn't be read from this machine (no Vercel CLI or project link), so the design fits the **Hobby** limits, which also work unchanged on Pro.
+
+| Option | Verdict |
+|---|---|
+| **Vercel Cron Jobs** (`vercel.json`) | **Used.** Generally available on all plans. Hobby allows up to 100 jobs per project, each running at most once a day, triggered anywhere within the scheduled hour (±59 min). That suits a once-a-day market brief. There are no automatic retries, which is why extra jobs follow. |
+| Vercel Schedules | Not used. It's the successor (Hobby: every 15 minutes or slower, 15-minute jitter), but still in **public beta**. Switch to it if Cron Jobs are retired. |
+| External schedulers (GitHub Actions cron, cron-job.org) | Not needed. They would also need `CRON_SECRET` stored outside Vercel. Any of them can call the same endpoint with the same header. |
+
+**Schedule** (all UTC; India has no daylight saving):
+
+| Cron | IST | Purpose |
+|---|---|---|
+| `0 13 * * 1-5` | 18:30–19:29, Mon–Fri | Main run after the 15:30 close, once end-of-day data has settled |
+| `0 15 * * 1-5` | 20:30–21:29, Mon–Fri | Retry: late data, or a failed or facts-only first run |
+| `30 3 * * 2-6` | 09:00–09:59, Tue–Sat | Next-morning catch-up if both evening runs failed |
+
+### What each run does, and its safeguards
+
+| Situation | Behaviour |
+|---|---|
+| **Unauthorised call** | 401. Requires `Authorization: Bearer <CRON_SECRET>`, compared in constant time. Vercel Cron sends it automatically. |
+| **Overlapping runs** (cron plus manual) | A Redis lock (`SET NX PX 90 s`, released only by its owner) lets one run work; the other returns **409 skipped**. A crashed run's lock expires by itself. |
+| **New trading session** | Fetch both indices in parallel → verify → news (15 s cap) → Groq (25 s cap) → gate → store. Total stays under the 60 s function limit. |
+| **Weekend, holiday, repeat run** | Same session and closes as stored → **unchanged**. No AI call; the stored brief stays. |
+| **AI fails for a new session** | The new **verified** figures are stored with a facts-only brief. The next run retries the AI, and only a passing AI brief replaces it. |
+| **AI retry fails again** | The stored brief is kept. A facts-only brief never replaces an AI brief for the same session. |
+| **Source returns an older session** | Never overwrites a newer stored brief. |
+| **Source error, quota, bad data, failed verification** | **failed**. Nothing is written; the previous verified brief stays visible with its real date. The page shows that the latest refresh didn't complete. |
+| **Licence not confirmed** | No index request is made at all. The run is recorded as failed with the reason. |
+
+**Logging.** Each run writes one JSON line to the Vercel function logs with status, session date, brief type, failed check ids, news count and duration. It contains no inputs, AI text or secrets. Runs are also recorded in Redis: a status record and the last 30 runs.
+
+**What visitors see.** The trading-session date, **Last successful update** (when the figures last changed) and **Last checked** (when the job last completed). If the latest run failed, a notice says these are the last verified figures.
+
+### Operations
+
+- **Trigger a run manually:**
+
+  ```bash
+  curl -H "Authorization: Bearer $CRON_SECRET" https://groww-lifeflow.vercel.app/api/market-pulse/refresh
+  ```
+
+  Add `?force=1` to rebuild the same session. It can upgrade a brief, never downgrade one.
+- **Responses:** `200` updated or unchanged; `409` another run in progress; `502` failed (previous brief kept; `previousKept` names its session); `503` not configured.
+- **Check health:** the Vercel dashboard → Logs (search `market_pulse_refresh`), or Settings → Cron Jobs. The page's **Last checked** time should be from the most recent weekday evening.
+- **Vercel Cron runs only on Production deployments.** Previews never refresh.
 
 ## Tests
 
@@ -140,9 +193,9 @@ Vercel Cron on Hobby runs once a day per job, within the scheduled hour. Two job
 | `lib/market-pulse/sip-explorer.test.ts` (20) | ₹30,000 − ₹18,000 − ₹3,000 = ₹9,000; paused ₹12,000 (+₹3,000); reduce; extra expense; decimals; negative cash; zero and invalid inputs; reduced SIP above current; neutral wording |
 | `market.test.ts` (20) | Change and % arithmetic; IST; weekends; 15:30 cut-off; weekdays vs calendar days; freshness; verification failures; period statistics |
 | `gate.test.ts` (25) | A grounded answer passes; 19 unsafe or wrong variants are blocked; live-output regressions; fallback never stores rejected text |
-| `refresh.test.ts` (5) | Update, unchanged session, provider and verification failures, news failure tolerated, mismatched session dates |
+| `refresh.test.ts` (11) | Update, unchanged session, provider and verification failures, news failure tolerated, mismatched session dates; **older session never overwrites; AI retry upgrade; failed retry keeps the stored brief; no downgrade from AI; new session stored when AI fails; slow-news time cap** |
 | `providers.test.ts` (8) | Licence gate; EODHD request and parse (token not leaked); SEBI date format; RSS, GDELT and GNews parsing; news window and de-duplication |
-| `routes.test.ts` (5) | Licence-blocker message; empty and served states; cron auth; no fetch without licence; full refresh to store; unchanged rerun |
+| `routes.test.ts` (7) | Licence-blocker message; empty and served states; cron auth; no fetch without licence; full refresh to store; unchanged rerun; **lock skip and release; run status on updated, unchanged and failed runs; previous brief kept unchanged on failure; Last checked on the page** |
 | `scripts/market-pulse-e2e.cjs` (10 checks) | Navigation; exact section order; hero contents; explorer arithmetic and validation; chart keyboard reading; news; insight; stale and unavailable states; 320/375/768 px; mobile nav; no page errors. Uses synthetic data **inside the test only**. |
 | axe-core | 0 WCAG 2.2 AA violations on Market Pulse in all three themes, with and without data, at 1440 and 375 px |
 

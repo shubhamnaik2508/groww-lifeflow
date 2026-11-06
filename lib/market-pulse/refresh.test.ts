@@ -19,7 +19,7 @@ describe('daily refresh',()=>{
  });
  it('keeps the stored brief when the session has not changed (weekends, holidays, repeat runs)',async()=>{
   const first=await refresh({indices:ok,news:null,generate:null,model:null,now});if(first.status!=='updated')throw Error();
-  expect(await refresh({indices:ok,news:null,generate:null,model:null,now,previous:first.snapshot})).toEqual({status:'unchanged',sessionDate:'2026-11-06'});
+  expect(await refresh({indices:ok,news:null,generate:null,model:null,now,previous:first.snapshot})).toMatchObject({status:'unchanged',sessionDate:'2026-11-06',reason:expect.stringContaining('No new trading session')});
   expect((await refresh({indices:ok,news:null,generate:null,model:null,now,previous:first.snapshot,force:true})).status).toBe('updated');
  });
  it('fails without publishing when a provider errors or data fails verification',async()=>{
@@ -36,5 +36,46 @@ describe('daily refresh',()=>{
   const mixed=provider(id=>id==='nifty50'?series(id,24000):earlier);
   const r=await refresh({indices:mixed,news:null,generate:null,model:null,now});
   expect(r.status==='updated'&&r.snapshot.notes[0]).toContain('different latest session dates');
+ });
+});
+
+describe('safeguards for the stored brief',()=>{
+ // A minimal analysis that passes the gate for the synthetic series above (both indices down on 6 November 2026).
+ const passing=JSON.stringify({verdict_headline:'Indian benchmark indices closed lower on 6 November 2026',
+  verdict_summary:{text:'NIFTY 50 and BSE SENSEX closed below their previous closes.',supports:['F_NIFTY_CHG','F_SENSEX_CHG']},
+  market_facts:[{text:'NIFTY 50 closed lower than its previous close.',supports:['F_NIFTY_CLOSE','F_NIFTY_PREV']}],
+  context:[],history_context:[],sip_education:[{text:'A SIP invests a fixed amount on set dates, whatever the market level.',supports:['F_NIFTY_PCT']}],
+  uncertainty:['The sources provided do not establish why the market moved.']});
+ const ai=async()=>passing,bad=async()=>'{"not":"valid"}';
+ const first=async()=>{const r=await refresh({indices:ok,news:null,generate:null,model:null,now});if(r.status!=='updated')throw Error();return r.snapshot};
+
+ it('never lets an older session from the source overwrite a newer stored brief',async()=>{
+  const stored={...(await first()),sessionDate:'2026-11-09'};
+  const r=await refresh({indices:ok,news:null,generate:ai,model:'m',now,previous:stored});
+  expect(r).toMatchObject({status:'unchanged',sessionDate:'2026-11-09',reason:expect.stringContaining('older session')});
+ });
+ it('retries AI for the same session when the stored brief fell back to verified facts',async()=>{
+  const stored=await first();expect(stored.brief.kind).toBe('deterministic');
+  const up=await refresh({indices:ok,news:null,generate:ai,model:'m',now,previous:stored});
+  expect(up).toMatchObject({status:'updated',reason:'ai-upgrade',snapshot:{brief:{kind:'ai'}}});
+ });
+ it('keeps the stored brief when the AI retry fails again',async()=>{
+  const r=await refresh({indices:ok,news:null,generate:bad,model:'m',now,previous:await first()});
+  expect(r).toMatchObject({status:'unchanged',reason:expect.stringContaining('stored brief is kept')});
+ });
+ it('does not regenerate an AI brief for the same session, and a forced run cannot downgrade it',async()=>{
+  const up=await refresh({indices:ok,news:null,generate:ai,model:'m',now,previous:await first()});if(up.status!=='updated')throw Error();
+  expect((await refresh({indices:ok,news:null,generate:ai,model:'m',now,previous:up.snapshot})).status).toBe('unchanged');
+  expect((await refresh({indices:ok,news:null,generate:bad,model:'m',now,previous:up.snapshot,force:true})).status).toBe('unchanged');
+ });
+ it('stores a new session even when AI fails (verified figures, facts-only brief)',async()=>{
+  const stored={...(await first()),sessionDate:'2026-11-05'};
+  const r=await refresh({indices:ok,news:null,generate:bad,model:'m',now,previous:stored});
+  expect(r).toMatchObject({status:'updated',reason:'new-session',snapshot:{sessionDate:'2026-11-06',brief:{kind:'deterministic'}}});
+ });
+ it('caps slow news so the run stays within its time budget',async()=>{
+  const t=Date.now();
+  const r=await refresh({indices:ok,news:{name:'slow',fetchNews:()=>new Promise(()=>{})},generate:null,model:null,now,newsTimeoutMs:50});
+  expect(r.status).toBe('updated');expect(Date.now()-t).toBeLessThan(2000);
  });
 });

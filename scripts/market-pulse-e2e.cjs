@@ -32,7 +32,7 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
   const ctx=await browser.newContext({viewport:{width:1366,height:900}});
   await ctx.addInitScript(()=>{try{localStorage.setItem('lifeflow-onboarded','yes')}catch{}});
   const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));
-  await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'current',weekdaysBehind:0,latestPossible:'2026-11-06'}}));
+  await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'current',weekdaysBehind:0,latestPossible:'2026-11-06'},checkedAt:'2026-11-07T13:30:00Z',lastRunFailed:false}));
 
   // 2. Navigation: Market Pulse is reachable from the sidebar; existing items remain.
   await page.goto(base+'/');
@@ -48,7 +48,7 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
 
   // 4. Hero contents.
   const heroText=await page.locator('.mp-hero').innerText();
-  for(const t of ['6 Nov 2026','End-of-day data · not live','NIFTY 50','BSE SENSEX','11,111.11','11,211.11','−100.00','22,222.22','TEST VERDICT','What remains uncertain','Evidence','Last successful update','TEST SOURCE (synthetic)'])assert(heroText.includes(t),`hero shows ${t}`);
+  for(const t of ['6 Nov 2026','End-of-day data · not live','NIFTY 50','BSE SENSEX','11,111.11','11,211.11','−100.00','22,222.22','TEST VERDICT','What remains uncertain','Evidence','Last successful update','Last checked','TEST SOURCE (synthetic)'])assert(heroText.includes(t),`hero shows ${t}`);
   assert(await page.locator('.mp-index.down').count()===2);ok('hero shows session date, both indices with changes, verdict, uncertainty and evidence');
 
   // 5. SIP Decision Explorer arithmetic and validation.
@@ -78,8 +78,8 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
 
   // 8. Stale and unavailable states never show invented figures.
   await page.unroute('**/api/market-pulse');
-  await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'stale',weekdaysBehind:3,latestPossible:'2026-11-11'}}));
-  await page.reload();await page.getByText(/Stale: 3 weekdays behind/).waitFor();assert(await page.getByText(/last verified session/).isVisible());
+  await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'stale',weekdaysBehind:3,latestPossible:'2026-11-11'},checkedAt:'2026-11-06T13:05:00Z',lastRunFailed:true}));
+  await page.reload();await page.getByText(/Stale: 3 weekdays behind/).waitFor();assert(await page.getByText(/last verified session/).isVisible());assert(await page.getByText(/latest scheduled refresh did not complete/).isVisible());
   await page.unroute('**/api/market-pulse');
   await page.route('**/api/market-pulse',fulfil({status:'not_configured',message:'Market Pulse storage is not configured on this server.'}));
   await page.reload();await page.getByText('Market data is not available right now.').waitFor();

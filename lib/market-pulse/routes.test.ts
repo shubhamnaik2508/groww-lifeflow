@@ -9,8 +9,11 @@ const calls:string[]=[];
 function mockFetch(eod:(sym:string)=>unknown){
  vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
   const url=String(input);calls.push(url.replace(/api_token=[^&]+/,'api_token=***'));
-  if(url.startsWith('https://test.upstash.io')){const [cmd,key,val]=JSON.parse(String(init?.body));
-   if(cmd==='GET')return Response.json({result:store[key]??null});if(cmd==='SET'){store[key]=val;return Response.json({result:'OK'})}return Response.json({result:0})}
+  if(url.startsWith('https://test.upstash.io')){const args=JSON.parse(String(init?.body));const [cmd,key,val]=args;
+   if(cmd==='GET')return Response.json({result:store[key]??null});
+   if(cmd==='SET'){if(args.includes('NX')&&key in store)return Response.json({result:null});store[key]=val;return Response.json({result:'OK'})}
+   if(cmd==='EVAL'){const [,,,k,token]=args;if(store[k]===token){delete store[k];return Response.json({result:1})}return Response.json({result:0})}
+   return Response.json({result:0})}
   if(url.startsWith('https://eodhd.com/api/eod/'))return Response.json(eod(url.split('/api/eod/')[1].split('?')[0]));
   return new Response('offline',{status:503}); // news feeds are unavailable in this test
  }));
@@ -57,5 +60,35 @@ describe('GET /api/market-pulse/refresh',()=>{
   expect(JSON.stringify(saved)).not.toContain('secret-token');
   // A repeat run for the same session keeps the stored brief.
   expect((await (await refreshRoute(req('Bearer a-long-test-secret-value'))).json()).status).toBe('unchanged');
+ });
+});
+
+describe('refresh safeguards',()=>{
+ const req=()=>new Request('http://localhost/api/market-pulse/refresh',{headers:{authorization:'Bearer a-long-test-secret-value'}});
+ const setup=()=>{vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-11-06T13:05:00Z'));
+  Object.assign(process.env,{CRON_SECRET:'a-long-test-secret-value',UPSTASH_REDIS_REST_URL:'https://test.upstash.io',UPSTASH_REDIS_REST_TOKEN:'t',EODHD_API_TOKEN:'k',MARKET_DATA_LICENSE_CONFIRMED:'true',MARKET_PULSE_GDELT:'false'})};
+ const status=()=>JSON.parse(store['lifeflow:market-pulse:status:v1']);
+
+ it('skips a run while another holds the lock, and releases its own lock afterwards',async()=>{
+  setup();mockFetch(sym=>series(sym.startsWith('NSEI')?24000:79000));
+  store['lifeflow:market-pulse:lock:v1']='other-run';
+  const r=await refreshRoute(req());expect(r.status).toBe(409);expect((await r.json()).status).toBe('skipped');
+  expect(calls.some(c=>c.includes('eodhd'))).toBe(false);
+  delete store['lifeflow:market-pulse:lock:v1'];
+  expect((await refreshRoute(req())).status).toBe(200);expect('lifeflow:market-pulse:lock:v1' in store).toBe(false);
+ });
+ it('records run status: success time on updated and unchanged runs, failures counted, previous brief kept',async()=>{
+  setup();mockFetch(sym=>series(sym.startsWith('NSEI')?24000:79000));
+  await refreshRoute(req());expect(status()).toMatchObject({lastStatus:'updated',lastSuccessAt:'2026-11-06T13:05:00.000Z',consecutiveFailures:0});
+  vi.setSystemTime(new Date('2026-11-06T15:05:00Z'));
+  await refreshRoute(req());expect(status()).toMatchObject({lastStatus:'unchanged',lastSuccessAt:'2026-11-06T15:05:00.000Z',lastUpdatedAt:'2026-11-06T13:05:00.000Z'});
+  const before=store['lifeflow:market-pulse:latest:v1'];
+  vi.setSystemTime(new Date('2026-11-09T13:05:00Z'));
+  vi.unstubAllGlobals();mockFetch(()=>({error:'quota exceeded'}));
+  const r=await refreshRoute(req());expect(r.status).toBe(502);expect((await r.json()).previousKept).toBe('2026-11-06');
+  expect(store['lifeflow:market-pulse:latest:v1']).toBe(before);
+  expect(status()).toMatchObject({lastStatus:'failed',consecutiveFailures:1,lastSuccessAt:'2026-11-06T15:05:00.000Z'});
+  // The public page reports the last successful check and that the latest run failed.
+  const pub=await (await pulse()).json();expect(pub).toMatchObject({status:'ok',checkedAt:'2026-11-06T15:05:00.000Z',lastRunFailed:true});
  });
 });

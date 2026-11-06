@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {freshness} from '../../../lib/market-pulse/market';
-import {readLatest,storeConfig} from '../../../lib/market-pulse/store';
+import {readLatest,readStatus,storeConfig} from '../../../lib/market-pulse/store';
 import {configuredProviders} from '../../../lib/market-pulse/providers';
 import type {PulseResponse,Snapshot} from '../../../lib/market-pulse/types';
 
@@ -16,5 +16,6 @@ export async function GET(){
  try{snap=await readLatest<Snapshot>()}catch{return send({status:'error',message:'The stored market brief could not be read. Please try again shortly.'},30)}
  if(!snap&&!licensed)return send({status:'not_configured',message:blocker},60);
  if(!snap)return send({status:'empty',message:'The first daily refresh has not run yet. The brief appears after the next scheduled update (about 6:30 PM IST on trading days).'},60);
- return send({status:'ok',snapshot:snap,freshness:freshness(snap.sessionDate)},300);
+ const run=await readStatus().catch(()=>null);
+ return send({status:'ok',snapshot:snap,freshness:freshness(snap.sessionDate),checkedAt:run?.lastSuccessAt??null,lastRunFailed:run?.lastStatus==='failed'},300);
 }
