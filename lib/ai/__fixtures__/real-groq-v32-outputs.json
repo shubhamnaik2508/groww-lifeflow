@@ -1,0 +1,321 @@
+{
+ "_provenance": "Raw outputs from Groq openai/gpt-oss-120b (strict json_schema, prompt lifeflow-agent-v3.2) via the LifeFlow server on 2026-11-07, run 2026-11-06T19-18-19-937Z-lifeflow-engineering-fixture.json. Real model output for engineering-fixture cases; not human-labelled.",
+ "outputs": {
+  "fx-expense-reference": {
+   "summary": "The health expense reduces your estimated remaining cash for this month.",
+   "points": [
+    {
+     "text": "Before the expense, LifeFlow estimates {scenario_before} left after your recurring expenses and SIP.",
+     "supports": [
+      "scenario_before"
+     ]
+    },
+    {
+     "text": "After the one-time health expense of {one_time_expense}, the estimate becomes {scenario_after}.",
+     "supports": [
+      "one_time_expense",
+      "scenario_after"
+     ]
+    },
+    {
+     "text": "This represents a change of {scenario_change} in your estimated remaining cash.",
+     "supports": [
+      "scenario_change"
+     ]
+    },
+    {
+     "text": "The one-time expense is assumed to affect only the illustrated month.",
+     "supports": [
+      "A3"
+     ]
+    },
+    {
+     "text": "Understanding such changes helps you see your current financial position, as recommended in financial education guidance.",
+     "supports": [
+      "sebi-financial-position"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review the health expense entry for accuracy.",
+    "Check your actual bank balance through your bank’s official app or branch.",
+    "Consider whether you have an emergency fund to cover unexpected costs."
+   ],
+   "uncertainty": "This is an estimate based on the figures you entered and may differ from your actual bank balance.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-salary-delay": {
+   "summary": "Your salary is delayed and will arrive after the scheduled SIP debit date.",
+   "points": [
+    {
+     "text": "The delayed salary is expected on 2026-12-08, which is 3 days after the SIP debit date of 2026-12-05.",
+     "supports": [
+      "salary_delay_days",
+      "expected_salary_arrival",
+      "days_salary_after_debit",
+      "timing_statement"
+     ]
+    },
+    {
+     "text": "SIPs are normally set up through a standing instruction or NACH mandate that debits your bank account on the chosen SIP date.",
+     "supports": [
+      "sebi-sip-mandate",
+      "amfi-sip-debit"
+     ]
+    },
+    {
+     "text": "If the account lacks sufficient balance, the fund house may stop debiting after two or three consecutive missed installments, without imposing a penalty.",
+     "supports": [
+      "amfi-consecutive-missed"
+     ]
+    },
+    {
+     "text": "LifeFlow estimates that after accounting for salary, recurring expenses, and the SIP, you would have {remaining_now} left.",
+     "supports": [
+      "remaining_now",
+      "A1",
+      "A2"
+     ]
+    },
+    {
+     "text": "A salary delay changes timing only; it does not determine whether the SIP debit will succeed, so you should verify the available balance before the SIP date.",
+     "supports": [
+      "A3"
+     ]
+    }
+   ],
+   "missing_information": [
+    "Your available balance before the SIP date"
+   ],
+   "next_steps": [
+    "Check your bank account balance before 2026-12-05 to ensure sufficient funds for the SIP.",
+    "Confirm the exact salary credit date with your employer.",
+    "Review the SIP mandate details in your bank or fund house portal."
+   ],
+   "uncertainty": "We cannot know if the SIP debit will succeed because we lack your actual bank balance and any bank-specific charge rules.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-rent": {
+   "summary": "Your rent increase reduces the estimated cash you have left each month.",
+   "points": [
+    {
+     "text": "Before the rent change, LifeFlow estimates {scenario_before} left after your salary, recurring expenses and SIP.",
+     "supports": [
+      "scenario_before"
+     ]
+    },
+    {
+     "text": "The rent will rise by {rent_change} starting {rent_effective_month}, which lowers the remaining cash to {scenario_after}.",
+     "supports": [
+      "rent_change",
+      "rent_effective_month",
+      "scenario_after"
+     ]
+    },
+    {
+     "text": "This represents a change of {scenario_change} in your estimated monthly cash.",
+     "supports": [
+      "scenario_change"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review the rent increase details in your lease agreement.",
+    "Update your personal budget to reflect the higher rent.",
+    "Check your actual bank balance to confirm the cash you have available."
+   ],
+   "uncertainty": "The estimate is based on the figures you entered and may differ from your actual bank balance.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-job-unknown": {
+   "summary": "Your current monthly picture shows a surplus, but a 30‑day income gap will reduce that surplus until you have new salary or savings.",
+   "points": [
+    {
+     "text": "LifeFlow estimates you have {remaining_now} left after your recurring expenses and SIP this month.",
+     "supports": [
+      "remaining_now",
+      "scenario_before"
+     ]
+    },
+    {
+     "text": "During the 30‑day income gap you will not receive the {salary} salary, so the cash you have now will need to cover the {recurring_expenses} expenses and the {sip_amount} SIP each month.",
+     "supports": [
+      "salary",
+      "recurring_expenses",
+      "sip_amount",
+      "income_gap_days"
+     ]
+    },
+    {
+     "text": "SEBI advises that understanding your current incomes, expenses, assets and liabilities is the first step in financial planning.",
+     "supports": [
+      "sebi-financial-position"
+     ]
+    }
+   ],
+   "missing_information": [
+    "What your new salary will be after the job change",
+    "How much savings or emergency fund you have to bridge the gap",
+    "Any one‑time costs that may arise during the gap"
+   ],
+   "next_steps": [
+    "Check your bank balance or cash‑on‑hand to see how much you can use during the gap.",
+    "List any emergency‑fund amount you have set aside for periods without income.",
+    "Calculate how many days your current remaining cash can cover your recurring expenses and SIP."
+   ],
+   "uncertainty": "We cannot determine how long your cash will last or whether you will need additional funds because savings and new salary are not provided.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-failure": {
+   "summary": "A failed SIP debit can be due to insufficient balance or mandate issues, and the fund house typically does not impose a penalty.",
+   "points": [
+    {
+     "text": "If a SIP installment is missed, the mutual fund company does not levy a penalty, but may stop further debits.",
+     "supports": [
+      "amfi-missed-instalment"
+     ]
+    },
+    {
+     "text": "Repeated missed installments (two or three in a row) can lead the fund house to stop the SIP and return any unused post‑dated cheques.",
+     "supports": [
+      "amfi-consecutive-missed"
+     ]
+    },
+    {
+     "text": "Check that your bank account has enough balance on the scheduled date ({sip_debit_date}) to cover the SIP amount ({sip_amount}).",
+     "supports": [
+      "sip_debit_date",
+      "sip_amount"
+     ]
+    },
+    {
+     "text": "Verify that the direct‑debit mandate with your bank is still active and correctly linked to the mutual fund.",
+     "supports": [
+      "A1"
+     ]
+    },
+    {
+     "text": "Your bank may apply its own charges for a failed debit, so review your bank’s fee schedule.",
+     "supports": [
+      "A1"
+     ]
+    }
+   ],
+   "missing_information": [
+    "Exact reason why the debit failed (e.g., insufficient funds, mandate issue).",
+    "Bank‑specific charge details for failed debits.",
+    "Current status of the SIP mandate with the bank."
+   ],
+   "next_steps": [
+    "Log into your bank’s app or portal to confirm the available balance on the SIP date.",
+    "Contact your bank to ensure the direct‑debit mandate is active and inquire about any fees for failed debits.",
+    "Check the mutual fund’s portal or communication for any notice that the SIP has been stopped."
+   ],
+   "uncertainty": "We cannot know the specific cause of the failure or any bank‑imposed charges without additional information.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-sip-basics": {
+   "summary": "An SIP is a way to invest a fixed amount regularly in a mutual fund.",
+   "points": [
+    {
+     "text": "An SIP or Systematic Investment Plan lets an investor put a fixed amount of money into a mutual fund scheme on a regular schedule.",
+     "supports": [
+      "sebi-sip"
+     ]
+    },
+    {
+     "text": "It is a methodology offered by mutual funds to invest a set amount periodically, such as monthly, instead of a lump‑sum.",
+     "supports": [
+      "amfi-sip"
+     ]
+    },
+    {
+     "text": "Your current picture shows a monthly SIP commitment of {sip_amount}, leaving an estimated remaining cash of {remaining_now} after salary and expenses.",
+     "supports": [
+      "sip_amount",
+      "remaining_now"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review the definition of SIP in your mutual fund’s educational material.",
+    "Check your bank’s transaction history to see the regular SIP debit entries."
+   ],
+   "uncertainty": "This explanation is based on general definitions and does not reflect any specific fund’s terms.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-mandate": {
+   "summary": "A SIP mandate is the authorisation you give to debit your bank account for systematic investment plan instalments.",
+   "points": [
+    {
+     "text": "Investors fill out a SIP mandate form indicating the date on which the pre‑determined amount will be invested each month.",
+     "supports": [
+      "sebi-sip-mandate"
+     ]
+    },
+    {
+     "text": "The mandate allows the fund house to auto‑debit your bank account through standing instructions, electronic clearing service or post‑dated cheques.",
+     "supports": [
+      "sebi-sip-mandate",
+      "amfi-sip-debit"
+     ]
+    },
+    {
+     "text": "SIP is described as a convenient method of investing via standing instructions that debit your bank account every month.",
+     "supports": [
+      "amfi-sip-debit"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Review the SIP mandate form you received from the fund house to see the chosen investment date.",
+    "Check that you have sufficient balance on the chosen date each month."
+   ],
+   "uncertainty": "This explanation is based on general educational sources and may not reflect specific fund‑house or bank procedures.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  },
+  "fx-missed-instalment": {
+   "summary": "Missing an SIP installment does not incur a penalty, but the fund house may stop further debits.",
+   "points": [
+    {
+     "text": "If you miss an installment, there is no penalty; the mutual fund company may simply stop the SIP, so future installments will not be debited.",
+     "supports": [
+      "amfi-missed-instalment"
+     ]
+    },
+    {
+     "text": "If two or three installments are missed consecutively, the fund house may stop debiting your account and return any unused post‑dated cheques, still without a penalty.",
+     "supports": [
+      "amfi-consecutive-missed"
+     ]
+    },
+    {
+     "text": "Your current estimate shows {remaining_now} left after accounting for salary, expenses, and the SIP commitment.",
+     "supports": [
+      "remaining_now"
+     ]
+    }
+   ],
+   "missing_information": [],
+   "next_steps": [
+    "Check your bank account to ensure sufficient balance for upcoming SIP dates.",
+    "Review the status of your SIP in the mutual fund portal or app.",
+    "If needed, contact the mutual fund’s customer service to confirm whether the SIP has been stopped."
+   ],
+   "uncertainty": "This explanation is based on general fund‑house practices and does not reflect any specific bank charges or individual fund rules.",
+   "requires_abstention": false,
+   "abstention_reason": ""
+  }
+ }
+}

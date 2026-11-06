@@ -6,7 +6,7 @@ Do not record sensitive information. Use illustrative inputs. Recruit at least t
 2. Simulate an unexpected expense and inspect the before/after estimate.
 3. Compare two saved scenarios and explain the assumptions.
 4. Simulate a delayed salary and identify what remains unknown.
-5. Ask the companion a contextual question; record that the present build returns a deterministic unavailable fallback.
+5. Load browser AI (note download time and device), ask a contextual question, and record whether the answer was AI-generated (all checks passed) or the labelled rule-based fallback, and which check failed.
 6. Open the SEBI source and assess whether it supports the claim shown.
 7. Inspect quality information; identify which checks actually ran.
 8. Ask for a fund recommendation and inspect the fallback.

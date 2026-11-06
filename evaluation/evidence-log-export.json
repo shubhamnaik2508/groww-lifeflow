@@ -1,0 +1,327 @@
+{
+  "format": "lifeflow-evidence-log-v1",
+  "exported_at": "2026-11-06T19:06:50.861Z",
+  "source_database": "groww_sip_lab.db",
+  "records": [
+    {
+      "evidence_id": "415b6dbd-dfe4-46eb-b1d2-fbbcf60726be",
+      "original_text": "Autopay failed silently without any SMS or push alert. My HDFC bank charged 590 Rs ECS bounce penalty. As a first-time investor with 1000 Rs SIP, losing 590 was devastating. I cancelled immediately.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "Autopay & Mandate Failure Friction",
+        "special_label": "standard",
+        "journey_stage": "autopay_failure_recovery",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.149Z",
+        "rationale": "Classic silent mandate failure resulting in bank penalty and immediate SIP termination."
+      }
+    },
+    {
+      "evidence_id": "4dcf6fc7-6b73-43fa-bd3f-365611602786",
+      "original_text": "My SIP instalment was deducted on 5th June, but mutual fund units were not allotted until 11th June. Customer support had no clear answer. I felt cheated thinking Groww holds my money.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "SIP Instalment Allotment Transparency",
+        "special_label": "standard",
+        "journey_stage": "first_instalment",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.189Z",
+        "rationale": "Unclear NAV allotment and settlement cycle creates deep early distrust during first instalment."
+      }
+    },
+    {
+      "evidence_id": "32d57987-d99d-48bd-8dad-dea1f85c8e64",
+      "original_text": "Started my first SIP in Parag Parikh Flexi Cap 3 months ago. Market crashed this week and my returns are -5%. I stopped my SIP because I cannot afford to lose my hard earned money.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "reddit",
+      "golden_label": {
+        "theme": "Loss Aversion & Panic During Early Market Dips",
+        "special_label": "standard",
+        "journey_stage": "market_dip_reaction",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.225Z",
+        "rationale": "Beginner loss aversion triggered by initial drawdown in months 2-4 without volatility education."
+      }
+    },
+    {
+      "evidence_id": "01c87f1c-5385-4d01-a664-aff8f326fd60",
+      "original_text": "I had unexpected medical expenses this month and wanted to skip only the July instalment. Groww only allows pausing for minimum 3 months! I had no choice but to cancel the whole SIP.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "reddit",
+      "golden_label": {
+        "theme": "SIP Flexibility & Modification Friction",
+        "special_label": "standard",
+        "journey_stage": "pause_cancellation",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.257Z",
+        "rationale": "Rigid pause rules force complete SIP cancellation when users only experience single-month liquidity constraints."
+      }
+    },
+    {
+      "evidence_id": "71d67017-f93c-44aa-b3c4-777fceaf52cf",
+      "original_text": "Why does Groww require 30 days prior notice just to change my SIP debit date from 1st to 10th? My salary date shifted and because I could not change it easily, I had to stop and restart.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "twitter_x",
+      "golden_label": {
+        "theme": "SIP Flexibility & Modification Friction",
+        "special_label": "standard",
+        "journey_stage": "pause_cancellation",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.293Z",
+        "rationale": "Inability to flexibly align debit dates with dynamic salary schedules."
+      }
+    },
+    {
+      "evidence_id": "e19e6824-a05f-47d7-b595-45ae36272c29",
+      "original_text": "Kyc rejection without showing which document was blurry. Submitted 4 times. Finally gave up on investing in mutual funds altogether.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "KYC & Onboarding Verification Drop-off",
+        "special_label": "standard",
+        "journey_stage": "mandate_kyc_setup",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.330Z",
+        "rationale": "Vague KYC document rejection reasons stop user intent before first investment can occur."
+      }
+    },
+    {
+      "evidence_id": "cd0c1325-5f78-4135-8162-24f772c5874f",
+      "original_text": "First SIP debit went through, but order status stayed \"Payment Processing\" for 72 hours over the weekend. App should display a timeline so beginners don't freak out.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "reddit",
+      "golden_label": {
+        "theme": "SIP Instalment Allotment Transparency",
+        "special_label": "standard",
+        "journey_stage": "first_instalment",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.367Z",
+        "rationale": "Lack of visual progress tracker creates uncertainty during settlement windows."
+      }
+    },
+    {
+      "evidence_id": "5d7f341b-b13c-42a4-95c3-b2cedc901c01",
+      "original_text": "Mandate setup via SBI netbanking failed with session timeout. Money debited 1 Rs for validation but autopay is not showing active. Terrified to click again.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "Autopay & Mandate Failure Friction",
+        "special_label": "standard",
+        "journey_stage": "mandate_kyc_setup",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.402Z",
+        "rationale": "Bank netbanking gateway drop-offs during mandate creation produce fear of recurring phantom debits."
+      }
+    },
+    {
+      "evidence_id": "f98acf83-997b-495b-83ac-f7d5ed21623d",
+      "original_text": "After 10 months of continuous SIP, app still shows no milestone acknowledgment or return comparison. Only push notification I get is \"Invest in NFO today!\". Uninstalled.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "twitter_x",
+      "golden_label": {
+        "theme": "Long-Term Horizon & Milestone Affirmation",
+        "special_label": "standard",
+        "journey_stage": "continuation_milestone",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.433Z",
+        "rationale": "Absence of disciplined milestone validation weakens commitment as users approach the 12-month mark."
+      }
+    },
+    {
+      "evidence_id": "0c7177b3-7424-471c-a8a7-f35cb1585a55",
+      "original_text": "Invested 500 Rs each month for 4 months. Total 2000 invested, current value 1980. Why am I losing money when inflation is 6%? Nobody explained mutual funds can go down in short term.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "Loss Aversion & Panic During Early Market Dips",
+        "special_label": "standard",
+        "journey_stage": "market_dip_reaction",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.471Z",
+        "rationale": "Misalignment between initial return expectations and short-term equity drawdown."
+      }
+    },
+    {
+      "evidence_id": "d2b39921-c5ec-42db-a261-9622a0f5a29d",
+      "original_text": "My bank debited SIP amount twice on the 2nd! Groww says wait 7 working days for refund. As a student with 3000 monthly allowance, this wiped out my balance.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "reddit",
+      "golden_label": {
+        "theme": "Autopay & Mandate Failure Friction",
+        "special_label": "standard",
+        "journey_stage": "first_instalment",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.515Z",
+        "rationale": "Double debit anomalies create acute liquidity distress for tight-budget investors."
+      }
+    },
+    {
+      "evidence_id": "9df023d7-5e7d-4489-9562-7552ed38d56b",
+      "original_text": "I thought SIP means I can pay anytime before month end like electricity bill. App automatically deducted on 5th when I didn't have salary yet.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "SIP Mental Model & Commitment Clarity",
+        "special_label": "standard",
+        "journey_stage": "discovery_intent",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.538Z",
+        "rationale": "Beginners conflating automatic standing instructions with manual utility bill payments."
+      }
+    },
+    {
+      "evidence_id": "777d4e63-96a6-443c-b294-e59c0f9ffe76",
+      "original_text": "Groww customer care took 6 days to respond to my failed SIP query. In the meantime, I got hit with another bounce penalty. Absolutely terrible.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "twitter_x",
+      "golden_label": {
+        "theme": "Autopay & Mandate Failure Friction",
+        "special_label": "standard",
+        "journey_stage": "autopay_failure_recovery",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.560Z",
+        "rationale": "Slow support response compounds financial distress from recurring bank bounce penalties."
+      }
+    },
+    {
+      "evidence_id": "e0a8c699-8aaa-4399-937d-f34ac61cb72b",
+      "original_text": "Too many fund choices. Small cap, large cap, sectoral, hybrid. Felt overwhelmed and abandoned app before setting up SIP.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "Fund Selection Paradox of Choice",
+        "special_label": "standard",
+        "journey_stage": "discovery_intent",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.579Z",
+        "rationale": "Cognitive overload during fund discovery prevents initial SIP initiation."
+      }
+    },
+    {
+      "evidence_id": "93a8d042-296c-4594-b6e1-6d8cf06ed3aa",
+      "original_text": "Completed 12 instalments in Nifty 50 index fund! Feeling great that I stayed disciplined despite all the war news and market swings.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "reddit",
+      "golden_label": {
+        "theme": "Long-Term Horizon & Milestone Affirmation",
+        "special_label": "standard",
+        "journey_stage": "continuation_milestone",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.610Z",
+        "rationale": "Positive discipline reinforcement upon reaching 1-year mark confirms active SIP retention."
+      }
+    },
+    {
+      "evidence_id": "76a68759-06dd-437b-9e06-11fa73c4f707",
+      "original_text": "Wanted to increase my SIP from 2000 to 3000 after my salary hike. App told me to cancel existing SIP and start new one! Why is step-up so unintuitive?",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "SIP Flexibility & Modification Friction",
+        "special_label": "standard",
+        "journey_stage": "pause_cancellation",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.651Z",
+        "rationale": "Rigid SIP modification interfaces force destructive cancel-restart cycles."
+      }
+    },
+    {
+      "evidence_id": "b2f65d30-f5c1-4538-9652-f4225c80ab8a",
+      "original_text": "Bank server was down on debit day. Groww marked SIP as \"Missed\". Does this ruin my CIBIL score? I am very worried.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "twitter_x",
+      "golden_label": {
+        "theme": "Autopay & Mandate Failure Friction",
+        "special_label": "standard",
+        "journey_stage": "autopay_failure_recovery",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.688Z",
+        "rationale": "Unjustified panic that investment mandate failures damage credit bureau ratings."
+      }
+    },
+    {
+      "evidence_id": "2d370c0d-1ad7-4699-a186-d577a35266fc",
+      "original_text": "Everything was smooth during KYC, but during first instalment payment via UPI, page went blank and took 24 hrs to reflect. Need better payment feedback.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "SIP Instalment Allotment Transparency",
+        "special_label": "standard",
+        "journey_stage": "first_instalment",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.725Z",
+        "rationale": "Blank UI states during critical first payment create immense anxiety."
+      }
+    },
+    {
+      "evidence_id": "49b7742f-f6c3-466d-942c-0be6c65d5e25",
+      "original_text": "Accidentally clicked \"Stop SIP\" thinking it was just pausing for this month. Now all my automated mandates are cancelled and I have to redo the bank setup from scratch.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "reddit",
+      "golden_label": {
+        "theme": "SIP Flexibility & Modification Friction",
+        "special_label": "standard",
+        "journey_stage": "pause_cancellation",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.748Z",
+        "rationale": "Ambiguous nomenclature between pause and permanent termination triggers irreversible cancellations."
+      }
+    },
+    {
+      "evidence_id": "c58d7b06-2d43-4b8f-bb2c-24923263987d",
+      "original_text": "Love the app interface and dark mode, but please give an option to select debit date on 7th or 10th instead of just 1st or 5th. Most private companies pay salary on 7th.",
+      "is_synthetic": true,
+      "entry_method": "fixture",
+      "platform": "play_store",
+      "golden_label": {
+        "theme": "SIP Mental Model & Commitment Clarity",
+        "special_label": "standard",
+        "journey_stage": "discovery_intent",
+        "observed_behaviour": null,
+        "labeller": "Senior Product Manager (Blind Benchmark)",
+        "labelled_at": "2026-11-05T03:54:36.766Z",
+        "rationale": "Misalignment between rigid platform debit date options and employer payroll cycles."
+      }
+    }
+  ]
+}

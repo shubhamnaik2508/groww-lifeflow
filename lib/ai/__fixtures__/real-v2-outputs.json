@@ -1,0 +1,95 @@
+{
+ "_provenance": "Raw outputs produced by Qwen2.5-1.5B-Instruct-q4f16_1-MLC (WebLLM 0.2.87, prompt lifeflow-explainer-v2, temperature 0.1, seed 42) in headless Edge on an NVIDIA RTX 4070 Laptop GPU on 2026-11-06 for the engineering fixture cases. Real model output, not human-labelled.",
+ "outputs": {
+  "fx-expense-reference": {
+   "summary": "The one-time expense of ₹5,000.00 affects your cash by reducing it.",
+   "explanation": "Before the unexpected health expense, LifeFlow estimates that you have ₹9,000.00 left after recurring expenses and your monthly SIP commitment. After this life event, the estimate becomes ₹4,000.00 because the one-time expense is subtracted from the remaining cash.",
+   "next_steps": [
+    "Review the expenses you entered for this month.",
+    "Check your available balance through your bank's official app or branch."
+   ],
+   "uncertainty": "This is an estimate based on your entries and may differ from your actual bank balance.",
+   "source_ids": [
+    "sebi-financial-position",
+    "sebi-emergency"
+   ]
+  },
+  "fx-salary-delay": {
+   "summary": "You need to check your available balance before the SIP date.",
+   "explanation": "Your salary is delayed, so you'll receive it later than expected. This means that when LifeFlow calculates your remaining cash (₹9,000.00), it's based on a scenario where your salary arrives after the usual date of ₹2026-12-08. However, since your salary will be received on ₹2026-12-08, which is one day earlier than the usual date, your actual remaining cash may be higher than calculated by LifeFlow. To avoid any potential issues with your SIP, make sure your bank account has sufficient funds for both your recurring expenses and the upcoming SIP amount.",
+   "next_steps": [
+    "Review your bank statements or contact your bank to confirm your current balance.",
+    "Check if there are other sources of income or savings available during this delay period."
+   ],
+   "uncertainty": "This estimate assumes regular monthly transactions but does not factor in delays like salary.",
+   "source_ids": [
+    "sebi-financial-position",
+    "amfi-sip-debit"
+   ]
+  },
+  "fx-rent": {
+   "summary": "Your monthly cash will decrease after the rent increase.",
+   "explanation": "After the rent increase, your estimated remaining cash (₹9,000.00) will be reduced by ₹2,000.00 due to the new rent amount. This means you'll have ₹7,000.00 left after expenses and your SIP commitment.",
+   "next_steps": [
+    "Review your current financial situation.",
+    "Check if there are any other sources of income or savings that can help cover the increased rent."
+   ],
+   "uncertainty": "This estimate is based on your entries and may not reflect your actual bank balance. It's important to keep track of all sources of income and expenses.",
+   "source_ids": []
+  },
+  "fx-job-unknown": {
+   "summary": "The gap in income means you'll have less money left after expenses and your SIP commitment.",
+   "explanation": "Before the salary decrease, LifeFlow estimates that ₹9,000.00 (the remaining cash) will be left after recurring expenses and your monthly SIP commitment. However, with a new salary of ₹30,000.00, this estimate changes to ₹21,000.00 because the new salary is higher than your previous one. The difference between these two amounts represents how much more money you can save each month due to the increase in take-home pay.",
+   "next_steps": [
+    "Review your current budget to see where you can cut back on expenses.",
+    "Consider setting up an emergency fund for unexpected situations."
+   ],
+   "uncertainty": "This estimate assumes no other life events or additional expenses occur during the income gap period.",
+   "source_ids": [
+    "sebi-financial-position",
+    "sebi-emergency"
+   ]
+  },
+  "fx-failure": {
+   "summary": "You should check your bank account for the SIP debit failure.",
+   "explanation": "The payment failed. The reason is unknown, but it could be due to a few reasons such as incorrect details (like wrong date or amount), system errors, or network issues. Check both your bank statement and LifeFlow's estimate of remaining cash after expenses and the SIP commitment.",
+   "next_steps": [
+    "Review the details you entered for this month’s SIPs.",
+    "Check your available balance through your bank’s official app or branch.",
+    "If unsure, contact your bank customer service."
+   ],
+   "uncertainty": "This cannot know why the payment failed.",
+   "source_ids": [
+    "sebi-sip-mandate",
+    "amfi-sip-debit"
+   ]
+  },
+  "fx-sip-basics": {
+   "summary": "An SIP is a Systematic Investment Plan where you invest a fixed amount regularly in mutual funds.",
+   "explanation": "When LifeFlow calculates your remaining cash, it subtracts your monthly salary (₹30,000.00) from your recurring expenses (₹18,000.00). After that, it deducts the Monthly SIP commitment (₹3,000.00). The result gives you an estimate of how much money will remain after all these commitments.\n\nFor example, if you have ₹9,000 left after expenses and the SIP, then LifeFlow estimates you can save ₹6,000 through this plan every month.",
+   "next_steps": [
+    "Review your current investment amounts to see if you're on track.",
+    "Check your bank account for any missed transactions or errors."
+   ],
+   "uncertainty": "This estimate may not reflect your actual financial situation as it includes only what you've entered manually.",
+   "source_ids": [
+    "sebi-sip",
+    "amfi-sip"
+   ]
+  },
+  "fx-mandate": {
+   "summary": "A mandate is a legal document that authorizes your bank to automatically transfer a specified amount from your account every month, allowing you to invest in mutual funds.",
+   "explanation": "When setting up an SIP (Systematic Investment Plan), you need to provide the bank with a 'mandate' form. This form includes details such as the investment amount and date. The bank then processes this through a standing instruction or electronic clearing service. By providing a valid mandate, LifeFlow can help you understand how much money will be invested each month without needing to manually add it to your recurring expenses.",
+   "next_steps": [
+    "Review the monthly expenses for accuracy.",
+    "Check if there are any one-time expenses mentioned during the year.",
+    "Ensure all investments are properly set up according to your financial goals."
+   ],
+   "uncertainty": "This process may not affect your current remaining cash estimate because it's based on future transactions rather than actual bank balances.",
+   "source_ids": [
+    "sebi-sip-mandate",
+    "amfi-sip-debit"
+   ]
+  }
+ }
+}
