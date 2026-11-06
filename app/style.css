@@ -84,3 +84,5 @@ footer{font-size:12px!important}
 .app .metrics .metric-dark span,.app .metrics .metric-dark small{color:#d6ece0!important}
 .app:not([data-theme="dark-warm"]) .list-row small{color:#5c6b63}
 .timeline small,.side-label{font-size:11px!important}
+.app[data-theme="blue-oceanic"] .side-label{color:#9cc0cc}
+.app[data-theme="blue-oceanic"] .side-note p{color:#a9c6d0}

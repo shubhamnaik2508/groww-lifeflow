@@ -20,7 +20,8 @@ const blank:Profile={salary:0,expenses:0,sip:0,sipDate:''};
 function Input({label,value,onChange,type='number',placeholder='0'}:{label:string;value:string|number;onChange:(v:string)=>void;type?:string;placeholder?:string}){return <label className="field"><span>{label}</span><input type={type} min={type==='number'?0:undefined} step={type==='number'?'any':undefined} value={value} placeholder={placeholder} onChange={e=>onChange(e.target.value)} /></label>}
 export default function Page(){
  const [page,setPage]=useState('Home'),[profile,setProfile]=useState<Profile>(blank),[persistent,setPersistent]=useState(false),[ready,setReady]=useState(false),[history,setHistory]=useState<Scenario[]>([]),[events,setEvents]=useState<Event[]>([]),[type,setType]=useState('expense'),[vals,setVals]=useState<Record<string,string>>({}),[result,setResult]=useState<Scenario|null>(null),[error,setError]=useState(''),[question,setQuestion]=useState(''),[answer,setAnswer]=useState<CompanionAnswer|null>(null),[loading,setLoading]=useState(false),[eventTitle,setEventTitle]=useState(''),[eventDate,setEventDate]=useState(''),[eventKind,setEventKind]=useState('Life event'),[editId,setEditId]=useState(''),[compareA,setCompareA]=useState(''),[compareB,setCompareB]=useState('');
- const [theme,setTheme]=useState('lifeflow'),[dockCollapsed,setDockCollapsed]=useState(false);
+ // Blue Oceanic is the default for new visitors; a saved choice still wins.
+ const [theme,setTheme]=useState('blue-oceanic'),[dockCollapsed,setDockCollapsed]=useState(false);
  const [companionMode,setCompanionMode]=useState<'groq'|'rules'|'browser'>('groq'),[aiStatus,setAiStatus]=useState<AIStatus|null>(null),[statusError,setStatusError]=useState(false);
  const model=useBrowserModel();const [onboarded,setOnboarded]=useState(true);
  useEffect(()=>{try{setOnboarded(localStorage.getItem('lifeflow-onboarded')==='yes')}catch{setOnboarded(false)}},[]);const [genTokens,setGenTokens]=useState(0);
