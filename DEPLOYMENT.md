@@ -1,6 +1,6 @@
 # Deploying LifeFlow to Vercel
 
-**Status: not deployed.** No public URL has been created or verified. Deployment needs the repository owner's explicit approval and Vercel access.
+**Status: deployed and verified on 2026-11-07** at **https://groww-lifeflow.vercel.app** (production follows `main`). Branch previews are protected by Vercel Authentication.
 
 ## Checklist
 

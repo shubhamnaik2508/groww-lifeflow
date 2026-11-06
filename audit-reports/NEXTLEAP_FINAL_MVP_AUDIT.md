@@ -2,6 +2,15 @@
 
 > **This is an independent assessment, not an official NextLeap grade.** The official Part 5 brief and rubric were not found on this machine (see "Assignment sources"), so the scoring uses the independent rubric supplied with the audit request.
 
+> **Deployment update (2026-11-07):** PR #1 was merged (`main` = `8761625`) and the public production site **https://groww-lifeflow.vercel.app** was verified the same day:
+> - status endpoint: `ai_available: true`, model `openai/gpt-oss-120b`, prompt v3.2, rate limiter in memory mode;
+> - a live reference answer passed every quality check (₹9,000 → ₹4,000) in 1.5 s, and an advice question was stopped by the safety rule;
+> - browser suites against the public URL: mentor journey 23/23, simulator 10/10, Groq companion 7/7, model states 7/7, rule-based guide and themes pass;
+> - accessibility audit: 0 overflow, 0 small text, 0 low contrast, 0 console errors across 25 page-widths;
+> - Blue Oceanic is the default theme; no login is required.
+>
+> Updated independent score: **68 / 100**. Requirements passed: **8 / 18**. **P0 blockers: 3** (user testing, golden set, research evidence).
+
 ## Executive summary
 
 LifeFlow is a well-engineered, locally working MVP. The Life-to-SIP Scenario Simulator is accurate and well tested. The Groq AI Companion sits behind a real, documented, fail-closed evaluation gate, and safety handling is strong.
@@ -29,10 +38,10 @@ This audit fixed every verified non-AI defect it found: 320 px layout overflow, 
 | AI-native value and supporting evidence | 10 | 6 | 6 | Real Groq agent with claim-level structured output. Existing reports show 8/8 connectivity checks and 1–4 of 8 (7 recorded runs) fixture answers passing the gate. AI value over a calculator is argued, not user-validated, and at least half of AI answers (4–7 of 8 per run) fell back to the rule-based guide in the recorded runs. | P1 |
 | Evaluation-gate and golden-set evidence | 15 | 8 | 8 | The gate is real, fail-closed and documented, with 250+ tests and real-output regressions (PASS). **The golden set has 0 genuine human-labelled cases** (FAIL), and the Reliability panel reports this honestly. | P0 |
 | User experience and accessibility | 15 | 9 | 13 | Before: 689 low-contrast text instances, 480 under 11 px, 177 small targets, 45 px overflow at 320 px. After: 0, 0, 50 (24 px source links and the dock toggle only) and 0. Not done: screen-reader testing, and an audit of the Dark Warm theme. | P2 |
-| Production reliability and security | 10 | 6 | 6 | Build passes, 0 npm vulnerabilities, server-only secrets, no input logging, rate limiting and security headers. **Not deployed, no CSP, no lint or CI**, and all recent work is uncommitted. | P0 |
+| Production reliability and security | 10 | 6 | 6 → **8** after deployment | Build passes, 0 npm vulnerabilities, server-only secrets, no input logging, rate limiting and security headers. **Not deployed, no CSP, no lint or CI**, and all recent work is uncommitted. | P0 |
 | User research and product iteration | 10 | 2 | 2 | Only engineering iterations are documented (gate and prompt versions). No user sessions, research or user-driven changes are evidenced. | P0 |
-| Mentor testability and submission readiness | 5 | 1 | 1 | The mentor guide and demo checklist exist, but there is no public URL. A mentor would need local setup and their own Groq key. | P0 |
-| **Total** | **100** | **58** | **64** | | |
+| Mentor testability and submission readiness | 5 | 1 | 1 → **3** after deployment | The mentor guide and demo checklist exist, but there is no public URL. A mentor would need local setup and their own Groq key. | P0 |
+| **Total** | **100** | **58** | **64 → 68 after deployment** | | |
 
 ## Product strengths
 

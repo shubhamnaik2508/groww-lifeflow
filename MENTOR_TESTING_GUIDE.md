@@ -1,6 +1,6 @@
 # Groww LifeFlow — mentor testing guide
 
-**No public URL has been verified yet** (see `DEPLOYMENT.md`). Until one is shared, the app runs locally: `npm install`, `npm run build`, `npm run start`, then open http://localhost:3000.
+**Open: https://groww-lifeflow.vercel.app**. No account or installation needed.
 
 ## Before you start
 
