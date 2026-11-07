@@ -200,12 +200,12 @@ function MarketVideos(){
  useEffect(()=>{let live=true;fetch('/api/market-pulse/videos').then(r=>r.json()).then((x:VideosResponse)=>{if(live)setV(x)}).catch(()=>{if(live)setV({status:'error'})});return()=>{live=false}},[]);
  if(!v||v.status==='not_configured')return null;
  return <div className="mp-videos" aria-labelledby="mp-videos-h">
-  <h3 id="mp-videos-h">Market videos <span>· from YouTube</span></h3>
-  {v.status==='error'?<p className="mp-empty">Market videos could not be loaded right now.</p>:!v.videos.length?<p className="mp-empty">No market videos from these channels in the last three days.</p>:
+  <h3 id="mp-videos-h">End-of-day market videos <span>· from YouTube</span></h3>
+  {v.status==='error'?<p className="mp-empty">Market videos could not be loaded right now.</p>:!v.videos.length?<p className="mp-empty">No end-of-day market videos from these channels in the last three days.</p>:
    <ul className="mp-video-list">{v.videos.map(x=><li key={x.videoId}>
     <a href={x.url} target="_blank" rel="noreferrer">{x.thumbnail&&<img src={x.thumbnail} alt="" loading="lazy" width={160} height={90}/>}<span className="mp-video-title">{x.title}</span></a>
     <small>{x.channel} · {stamp(x.publishedAt)}</small></li>)}</ul>}
-  {v.status==='ok'&&<p className="mp-small">Latest Indian market videos from {v.channels.map((c,i)=><span key={c.url}>{i?' and ':''}<a href={c.url} target="_blank" rel="noreferrer">{c.name}</a></span>)} on YouTube, selected by topic; titles are the channels’ own and are not used by the AI. Stock-tip videos are left out. Videos open on YouTube, where <a href="https://www.youtube.com/t/terms" target="_blank" rel="noreferrer">YouTube’s Terms of Service</a> and the <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Privacy Policy</a> apply.{v.partial?' One channel could not be reached this hour.':''}</p>}
+  {v.status==='ok'&&<p className="mp-small">Latest closing-bell and market-wrap videos (after 2 PM IST) from {v.channels.map((c,i)=><span key={c.url}>{i?' and ':''}<a href={c.url} target="_blank" rel="noreferrer">{c.name}</a></span>)} on YouTube, selected by topic; titles are the channels’ own and are not used by the AI. Stock-tip videos are left out. Videos open on YouTube, where <a href="https://www.youtube.com/t/terms" target="_blank" rel="noreferrer">YouTube’s Terms of Service</a> and the <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Privacy Policy</a> apply.{v.partial?' One channel could not be reached this hour.':''}</p>}
  </div>;
 }
 

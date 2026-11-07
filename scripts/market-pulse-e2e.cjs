@@ -118,7 +118,7 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
    videos:[{videoId:'test0000001',title:'TEST VIDEO: Sensex closing wrap',channel:'CNBC-TV18',publishedAt:'2026-11-06T11:00:00Z',thumbnail:null,url:'https://www.youtube.com/watch?v=test0000001'}]}));
   await page.reload();await page.locator('.mp-videos').waitFor();
   const vids=page.locator('.mp-videos');
-  assert(await vids.getByRole('link',{name:/TEST VIDEO: Sensex closing wrap/}).isVisible());
+  assert(await vids.getByRole('link',{name:/TEST VIDEO: Sensex closing wrap/}).isVisible());assert((await vids.innerText()).includes('End-of-day market videos'));
   assert(await vids.getByRole('link',{name:/Terms of Service/}).isVisible()&&await vids.getByRole('link',{name:/Google Privacy Policy/}).isVisible());
   assert((await vids.innerText()).includes('from YouTube'));
   assert.equal(await page.locator('.mp-news-list .mp-video-title').count(),0,'videos are not mixed into the headline list');

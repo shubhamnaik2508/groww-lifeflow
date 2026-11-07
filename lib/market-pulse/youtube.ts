@@ -21,6 +21,16 @@ const MARKET=/\b(nifty|sensex|stock market|share market|bank nifty|closing bell|
 /** Stock-tip formats are left out of an educational, no-advice page; titles are never edited, only selected. */
 const TIPS=/\b(buy|sell|targets?|tips?|multibaggers?|picks?|stocks? to watch|trading ideas?|jackpot)\b/i;
 export const isMarketVideo=(title:string)=>MARKET.test(title)&&!TIPS.test(title);
+/**
+ * End-of-day only: closing-bell, market-close and evening wrap shows (e.g. CNBC-TV18 "Market Closing LIVE",
+ * "Market Ends Higher…", "Closing Bell / Last Hour Of Trade", "India Business Hour"; moneycontrol "Taking Stock").
+ * Opening-bell and pre-market videos are excluded.
+ */
+const EOD=/\b(market closing|closing bell|last hour of trade|(?:market|markets|nifty|sensex|indices|benchmarks)\s+(?:ends?|ended|closes?|closed|settles?|settled)|ends? (?:higher|lower|flat)|closes? (?:higher|lower|flat)|taking stock|market wrap|wrap[- ]?up|post[- ]market|india business hour|end of (?:the )?day|day'?s? wrap|week(?:ly)? wrap)\b/i;
+const OPENING=/\b(market opening|opening bell|opens? (?:higher|lower|flat|above|below)|pre[- ]?market|ahead of (?:the )?market|first trade|market minutes)\b/i;
+/** Published after 14:00 IST (the last hour of trade and later) or overnight before the 09:15 IST open. */
+export function publishedAfterClose(iso:string):boolean{const t=new Date(Date.parse(iso)+330*60000);const m=t.getUTCHours()*60+t.getUTCMinutes();return m>=14*60||m<9*60+15}
+export const isEndOfDayVideo=(title:string,publishedAt:string)=>isMarketVideo(title)&&EOD.test(title)&&!OPENING.test(title)&&publishedAfterClose(publishedAt);
 
 const decode=(s:string)=>s.replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>');
 /** Parses playlistItems.list JSON (part=snippet). */
@@ -36,7 +46,7 @@ export function parsePlaylistItems(json:unknown,channel:VideoChannel):MarketVide
 }
 
 type Getter=(url:string,init?:RequestInit&{next?:{revalidate?:number}})=>Promise<Response>;
-/** Latest market videos from the configured channels: last 3 days, newest first, at most `limit`. Channel failures are tolerated. */
+/** Latest end-of-day market videos from the configured channels: last 3 days, newest first, at most `limit`. Channel failures are tolerated. */
 export async function fetchMarketVideos(key:string,opts:{fetchImpl?:Getter;now?:Date;limit?:number;channels?:VideoChannel[]}={}):Promise<{videos:MarketVideo[];failedChannels:string[]}>{
  const get=opts.fetchImpl??((u,i)=>fetch(u,i));const now=opts.now??new Date();const since=now.getTime()-3*86400000;
  const failed:string[]=[];
@@ -49,7 +59,7 @@ export async function fetchMarketVideos(key:string,opts:{fetchImpl?:Getter;now?:
   }catch{failed.push(ch.name);return []}
  }));
  const seen=new Set<string>();
- const videos=lists.flat().filter(v=>isMarketVideo(v.title)&&Date.parse(v.publishedAt)>=since&&Date.parse(v.publishedAt)<=now.getTime()+3600000)
+ const videos=lists.flat().filter(v=>isEndOfDayVideo(v.title,v.publishedAt)&&Date.parse(v.publishedAt)>=since&&Date.parse(v.publishedAt)<=now.getTime()+3600000)
   .filter(v=>!seen.has(v.videoId)&&!!seen.add(v.videoId)).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt)).slice(0,opts.limit??6);
  return {videos,failedChannels:failed};
 }
