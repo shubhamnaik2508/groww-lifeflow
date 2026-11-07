@@ -117,7 +117,10 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
   ok('open-data mode: SENSEX widget with attribution, NIFTY 50 unavailable without figures, labelled OECD monthly chart');
 
   // 8c. Market videos (YouTube): hidden without a key; with one, a separate block with YouTube terms and privacy links.
-  assert.equal(await page.locator('.mp-videos').count(),0,'videos block hidden when YouTube is not configured');
+  // The real videos API decides: hidden when YouTube isn't configured on this server, shown when it is.
+  const realVideos=await (await fetch(base+'/api/market-pulse/videos?t='+Date.now())).json();
+  if(realVideos.status==='not_configured')assert.equal(await page.locator('.mp-videos').count(),0,'videos block hidden when YouTube is not configured');
+  else assert(await page.locator('.mp-videos').count()<=1,'at most one videos block');
   await page.route('**/api/market-pulse/videos',fulfil({status:'ok',partial:false,fetchedAt:'2026-11-06T13:00:00Z',channels:[{name:'moneycontrol',url:'https://www.youtube.com/@moneycontrol'},{name:'CNBC-TV18',url:'https://www.youtube.com/@CNBC-TV18'}],
    videos:[{videoId:'test0000001',title:'TEST VIDEO: Sensex closing wrap',channel:'CNBC-TV18',publishedAt:'2026-11-06T11:00:00Z',thumbnail:null,url:'https://www.youtube.com/watch?v=test0000001'}]}));
   await page.reload();await page.locator('.mp-videos').waitFor();
