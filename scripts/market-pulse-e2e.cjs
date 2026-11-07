@@ -112,6 +112,19 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
   assert((await page.locator('.mp-connect').innerText()).includes('OECD, monthly'));
   ok('open-data mode: SENSEX widget with attribution, NIFTY 50 unavailable without figures, labelled OECD monthly chart');
 
+  // 8c. Market videos (YouTube): hidden without a key; with one, a separate block with YouTube terms and privacy links.
+  assert.equal(await page.locator('.mp-videos').count(),0,'videos block hidden when YouTube is not configured');
+  await page.route('**/api/market-pulse/videos',fulfil({status:'ok',partial:false,fetchedAt:'2026-11-06T13:00:00Z',channels:[{name:'moneycontrol',url:'https://www.youtube.com/@moneycontrol'},{name:'CNBC-TV18',url:'https://www.youtube.com/@CNBC-TV18'}],
+   videos:[{videoId:'test0000001',title:'TEST VIDEO: Sensex closing wrap',channel:'CNBC-TV18',publishedAt:'2026-11-06T11:00:00Z',thumbnail:null,url:'https://www.youtube.com/watch?v=test0000001'}]}));
+  await page.reload();await page.locator('.mp-videos').waitFor();
+  const vids=page.locator('.mp-videos');
+  assert(await vids.getByRole('link',{name:/TEST VIDEO: Sensex closing wrap/}).isVisible());
+  assert(await vids.getByRole('link',{name:/Terms of Service/}).isVisible()&&await vids.getByRole('link',{name:/Google Privacy Policy/}).isVisible());
+  assert((await vids.innerText()).includes('from YouTube'));
+  assert.equal(await page.locator('.mp-news-list .mp-video-title').count(),0,'videos are not mixed into the headline list');
+  await page.unroute('**/api/market-pulse/videos');
+  ok('market videos: hidden without a key; separate YouTube block with terms and privacy links');
+
   // 9. Mobile: no horizontal scroll, all six nav destinations, back to other features.
   await page.unroute('**/api/market-pulse');await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'current',weekdaysBehind:0,latestPossible:'2026-11-06'}}));
   for(const w of [320,375,768]){await page.setViewportSize({width:w,height:800});await page.reload();await page.locator('.mp-hero').waitFor();

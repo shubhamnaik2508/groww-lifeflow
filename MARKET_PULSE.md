@@ -20,6 +20,7 @@ It is educational only. It makes no recommendations and executes nothing.
 > | **NIFTY 50** | None. NSE symbols are blocked in free widgets; NSE Indices requires a display licence. | An honest "not shown on this free site" card, linking to NIFTY 50 on TradingView | — |
 > | **Market trend the AI can cite** | OECD SDMX API: India share prices, **monthly index (2015 = 100)**, CC BY 4.0 | Latest month, monthly, 3- and 12-month changes, and a 1–5 year chart | **Yes.** Verified, labelled as monthly and "not the NIFTY 50 or SENSEX level". |
 > | **News** | SEBI RSS and the GDELT Project (GNews optional) | Publishers' own headlines and links | **Yes**, with attribution; an index move only via a cited report |
+> | **Market videos** | YouTube Data API: the official **moneycontrol** and **CNBC-TV18** channels | Latest market videos (titles, thumbnails, links), in their own block | **No.** YouTube policy forbids mixing its data with other sources. |
 >
 > **Licensed mode is still built.** With written permission and `EODHD_API_TOKEN` plus `MARKET_DATA_LICENSE_CONFIRMED=true`, the hero switches to verified daily NIFTY 50 and SENSEX closes, as originally specified.
 
@@ -109,6 +110,9 @@ Those generations used synthetic data, so this shows the gate works with real mo
 | Investing.com widgets | Rejected | Display needs written permission |
 | GitHub projects: `NSE-MCP` (browser imitation against NSE's internal endpoints, plus Yahoo) and `Indian-Stock-Market-API` (yfinance) | Rejected | They wrap the same prohibited sources. An open-source licence covers the code, not the data. |
 | MiroFish and BettaFish (multi-agent prediction and social-listening frameworks) | Not applicable | They supply no market data, and MiroFish's purpose (forecasting) conflicts with Market Pulse's no-prediction rule |
+| **YouTube Data API** (moneycontrol `UChftTVI0QJmyXkajQYt2tiQ`, CNBC-TV18 `UCmRbHAgG2k2vDUvb3xsEunQ`) | **Used** (with `YOUTUBE_API_KEY`) | YouTube API Services policies: titles unmodified, YouTube credited, its own block with no intermixing, refreshed hourly (well inside the 30-day limit), links to YouTube's Terms and the Google Privacy Policy, opens on YouTube (no embedded player). Uses 1 quota unit per channel per hour. Market videos only, chosen by title keywords; stock-tip formats ("stocks to buy", targets, multibaggers) are excluded. |
+| X (Twitter): @moneycontrolcom, CNBC-TV18 and others | Not used | Reading posts through the API is paid per post (no free reads for new developers since February 2026). The free embedded profile timeline rendered blank in a test on 2026-11-07. Scraping X is prohibited. |
+| Moneycontrol, ET, Mint or BusinessLine websites or RSS directly | Not used | Their feeds are for personal use or ban public display. Their market headlines can reach Market Pulse as headline-and-link results through GDELT, whose terms allow it. |
 | FRED, Alpha Vantage, Stooq, data.gov.in | Rejected | Copyrighted series, personal use only, redistribution banned, or stale data |
 
 ## Turning it on
@@ -122,6 +126,13 @@ Those generations used synthetic data, so this shows the gate works with real mo
 1. Create a free TradingView account.
 2. Open the widget builder for Symbol Overview and Single Ticker with `BSE:SENSEX`.
 3. Done on 2026-11-07: both widgets were compared with the code TradingView's builder generates. The Single Ticker is used exactly as generated (`<tv-single-ticker symbol="BSE:SENSEX">` plus its module script), with the documented `theme="dark"` attribute; it draws its own attribution. The Symbol Overview uses the same script and the exact attribution ("SENSEX quote by TradingView"). LifeFlow keeps daily date ranges (1M–1Y), because the builder's default intraday ranges are empty for end-of-day BSE data.
+
+**Optional: market videos.**
+1. In Google Cloud Console, create a project and enable **YouTube Data API v3**.
+2. Create an API key, and restrict it to that API.
+3. Add it to Vercel as `YOUTUBE_API_KEY` (Production), then redeploy.
+
+The block stays hidden until the key is set.
 
 **For the daily AI brief** (OECD and news; no licence needed):
 1. In Vercel, connect **Upstash for Redis** (Storage → Marketplace). This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
@@ -142,7 +153,7 @@ The hero then shows verified NIFTY 50 and SENSEX closes.
 **If a Content-Security-Policy is added later** (it is on the separate `level-up-evidence-tooling` branch), allow:
 - `script-src https://s3.tradingview.com https://widgets.tradingview-widget.com`;
 - `frame-src https://www.tradingview-widget.com https://s.tradingview.com`;
-- `img-src https://s3-symbol-logo.tradingview.com`;
+- `img-src https://s3-symbol-logo.tradingview.com https://i.ytimg.com` (YouTube thumbnails);
 - `connect-src`: the Single Ticker runs in the page, so its live-data connection also needs allowing. Confirm the exact host in the browser developer tools when the policy is added.
 
 ## Automatic daily updates
@@ -206,6 +217,7 @@ The project's plan couldn't be read from this machine (no Vercel CLI or project 
 | `market.test.ts` (20) | Change and % arithmetic; IST; weekends; 15:30 cut-off; weekdays vs calendar days; freshness; verification failures; period statistics |
 | `gate.test.ts` (25) | A grounded answer passes; 19 unsafe or wrong variants are blocked; live-output regressions; fallback never stores rejected text |
 | `refresh.test.ts` (11) | Update, unchanged session, provider and verification failures, news failure tolerated, mismatched session dates; **older session never overwrites; AI retry upgrade; failed retry keeps the stored brief; no downgrade from AI; new session stored when AI fails; slow-news time cap** |
+| `youtube.test.ts` (14) | Market-topic and stock-tip filters; parsing (entities, private or deleted videos, untrusted thumbnails); uploads-playlist requests; 3-day window, newest first, de-duplicated, capped; one channel failing; route hidden without a key; the key never appears in responses; edge caching |
 | `providers.test.ts` (8) | Licence gate; EODHD request and parse (token not leaked); SEBI date format; RSS, GDELT and GNews parsing; news window and de-duplication |
 | `routes.test.ts` (7) | Licence-blocker message; empty and served states; cron auth; no fetch without licence; full refresh to store; unchanged rerun; **lock skip and release; run status on updated, unchanged and failed runs; previous brief kept unchanged on failure; Last checked on the page** |
 | `scripts/market-pulse-e2e.cjs` (11 checks; TradingView's script is stubbed inside the test) | **Open-data mode: SENSEX widget with attribution, NIFTY 50 unavailable with no figures, no exchange links, labelled OECD chart.**  Navigation; exact section order; hero contents; explorer arithmetic and validation; chart keyboard reading; news; insight; stale and unavailable states; 320/375/768 px; mobile nav; no page errors. Uses synthetic data **inside the test only**. |

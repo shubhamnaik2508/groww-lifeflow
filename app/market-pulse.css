@@ -163,3 +163,13 @@
    built-in attribution stays readable. */
 .mp-tv-wc{background:#0f0f0f;border-radius:14px;padding:10px 12px;margin-top:10px;min-height:100px}
 .mp-tv-wc tv-single-ticker{display:block;width:100%}
+
+/* Market videos (YouTube) */
+.mp-videos{margin-top:18px;padding-top:14px;border-top:1px solid rgba(16,104,122,.15)}
+.mp-videos h3 span{font-weight:600;opacity:.75;font-size:13px}
+.mp-video-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.mp-video-list li{display:grid;gap:4px}
+.mp-video-list a{display:grid;gap:6px;text-decoration:none}
+.mp-video-list img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:rgba(16,104,122,.08)}
+.mp-video-title{font-size:14px;line-height:1.4;text-decoration:underline;text-underline-offset:3px}
+.mp-video-list small{font-size:12px;opacity:.85}

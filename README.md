@@ -11,7 +11,7 @@ Life changes. Your money plan adapts. An independent educational prototype for f
 - **Live:** https://groww-lifeflow.vercel.app (verified 2026-11-07; see `DEPLOYMENT.md`).
 - **Golden set:** no genuine human-labelled companion cases exist. No accuracy is claimed (`GOLDEN_SET_EVALUATION.md`).
 - Compliance summary: `PART5_COMPLIANCE_REPORT.md`.
-- **Market Pulse** (`/#market-pulse`): Daily Market Brief for NIFTY 50 and SENSEX, a neutral SIP Decision Explorer, history, news and a gated AI insight. SENSEX via TradingView's licensed widget, NIFTY 50 only with a licence, and an AI brief from OECD monthly data and news; see `MARKET_PULSE.md`.
+- **Market Pulse** (`/#market-pulse`): Daily Market Brief for NIFTY 50 and SENSEX, a neutral SIP Decision Explorer, history, news and a gated AI insight. SENSEX via TradingView's licensed widget, NIFTY 50 only with a licence, an AI brief from OECD monthly data and news, and optional market videos from the moneycontrol and CNBC-TV18 YouTube channels; see `MARKET_PULSE.md`.
 
 ## Run locally
 
