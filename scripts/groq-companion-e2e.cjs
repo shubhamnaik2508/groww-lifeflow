@@ -61,7 +61,7 @@ const mockAnswer={kind:'model',label:'AI-generated · passed every quality check
   const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await ctx.newPage();await setup(page);
   await ask(page,'How does this expense affect my cash?');assert(await page.locator('.verification').isVisible());
   const size=await page.evaluate(()=>({w:document.documentElement.scrollWidth,c:document.documentElement.clientWidth}));assert(size.w<=size.c+1,`overflow ${size.w}>${size.c}`);
-  await page.locator('.mobile-nav').getByRole('button',{name:/AI Reliability/}).click();await page.getByText(/one human-labelled set of 3 cases/).waitFor();await ctx.close();
+  await page.locator('.mobile-nav').getByRole('button',{name:/AI Reliability/}).click();await page.getByText(/one human-labelled set of 6 cases/).waitFor();await ctx.close();
  });
  await check('Evidence Log import is labelled a simulation and excluded from the genuine sample',async()=>{
   const page=await browser.newPage();await page.goto(base+'/#ai-reliability');

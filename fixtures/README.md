@@ -37,5 +37,11 @@ The AI Reliability panel imports one JSON file:
 
 - `lifeflow-engineering-fixture.json` — **engineering fixture, not human labels.** It was written by an AI coding assistant to exercise the pipeline and the Reliability workflow. Its expected results restate LifeFlow's own design rules. It must not be reported as evaluation evidence or used to compute accuracy.
 
-- `lifeflow-3-case-human-labels.json` — **human-labelled, 3 cases.** One case per behaviour (answer, abstain, clarify), each labelled by a different human tester (anonymised as Human tester 1–3) on 2026-11-08. Three cases demonstrate the workflow; they cannot establish accuracy.
-- `../public/evaluation/lifeflow-3-case-review.json` — the same 3 cases with the live run (LifeFlow AI, Groq `openai/gpt-oss-120b`, prompt `lifeflow-agent-v3.2`) and the human review (overall outcome only; the five dimensions were not scored). The AI Reliability panel loads it with **Load published review**. The separate SIP Discovery Engine contains 20 evidence-theme fixtures for a different task; they are not assistant-answer labels and are not imported.
+- `lifeflow-human-labels.json`: **human-labelled, 6 cases.** They cover answer, abstain and clarify. Each case was labelled by a different human tester, anonymised as Human tester 1–6, on 2026-11-08. Six cases are too few to establish accuracy.
+- `../public/evaluation/lifeflow-human-review.json`: the same 6 cases with the live runs and the human review.
+  - **Runs:** LifeFlow AI on Groq `openai/gpt-oss-120b`, prompt `lifeflow-agent-v3.2`.
+  - **Behaviour match:** 4/6. Cases h4 and h5 were blocked by the investment-safety check and fell back to the rule-based guide.
+  - **Verdicts:** 2 Pass, 2 Correct abstention, 1 Partial pass, 1 Fail.
+  - **Scope:** overall outcome only; the five dimensions were not scored.
+
+  The AI Reliability panel loads this file with **Load published review**. The separate SIP Discovery Engine contains 20 evidence-theme fixtures for a different task; they are not assistant-answer labels and are not imported.
