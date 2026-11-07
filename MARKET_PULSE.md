@@ -99,7 +99,7 @@ Those generations used synthetic data, so this shows the gate works with real mo
 
 | Source | Decision | Why |
 |---|---|---|
-| **TradingView widgets** (Single Quote, Symbol Overview) for `BSE:SENSEX` | **Used** | The widget docs list BSE as end-of-day "Stocks, Indices & Futures"; the widgets are free for non-commercial sites. TradingView policies §4: attribution must stay visible and unaltered, so it is never restyled; on dark surfaces it sits on a light pill for contrast. TradingView receives visitors' IP address and the page URL; the widgets set no cookies. |
+| **TradingView widgets** for `BSE:SENSEX`: Single Ticker (web component, TradingView's recommended format) in the hero; Symbol Overview (iframe) for the chart | **Used** | The widget docs list BSE as end-of-day "Stocks, Indices & Futures"; the widgets are free for non-commercial sites. TradingView policies §4: attribution must stay visible and unaltered, so it is never restyled; on dark surfaces it sits on a light pill for contrast. TradingView receives visitors' IP address and the page URL; the widgets set no cookies. |
 | **TradingView `NSE:NIFTY`** | Not available | Widgets show "This symbol is only available on TradingView", meaning it isn't licensed for widgets |
 | **OECD SDMX API**, `DSD_STES@DF_FINMARK`, IND.M.SHARE | **Used** | Free and keyless; CC BY 4.0 since July 2024, cited on the page. Monthly index, not a daily close. The OECD notes third-party material may need the owner's permission; the series is OECD-compiled. Switch it off with `MARKET_PULSE_OECD=false`. |
 | **SEBI RSS, GDELT** | **Used** | Headline and link display is permitted; GDELT is credited |
@@ -121,7 +121,7 @@ Those generations used synthetic data, so this shows the gate works with real mo
 **Before merging, one owner step:**
 1. Create a free TradingView account.
 2. Open the widget builder for Symbol Overview and Single Ticker with `BSE:SENSEX`.
-3. Done on 2026-11-07: the builder's generated code was compared with `app/TradingViewWidget.tsx`. Same script URLs and the exact attribution ("SENSEX quote by TradingView", linking to TradingView's SENSEX page). LifeFlow keeps daily date ranges (1M–1Y), because the builder's default intraday ranges are empty for end-of-day BSE data.
+3. Done on 2026-11-07: both widgets were compared with the code TradingView's builder generates. The Single Ticker is used exactly as generated (`<tv-single-ticker symbol="BSE:SENSEX">` plus its module script), with the documented `theme="dark"` attribute; it draws its own attribution. The Symbol Overview uses the same script and the exact attribution ("SENSEX quote by TradingView"). LifeFlow keeps daily date ranges (1M–1Y), because the builder's default intraday ranges are empty for end-of-day BSE data.
 
 **For the daily AI brief** (OECD and news; no licence needed):
 1. In Vercel, connect **Upstash for Redis** (Storage → Marketplace). This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
@@ -140,8 +140,10 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://groww-lifeflow.vercel.app/a
 The hero then shows verified NIFTY 50 and SENSEX closes.
 
 **If a Content-Security-Policy is added later** (it is on the separate `level-up-evidence-tooling` branch), allow:
-- `script-src https://s3.tradingview.com`;
-- `frame-src https://www.tradingview-widget.com https://s.tradingview.com`.
+- `script-src https://s3.tradingview.com https://widgets.tradingview-widget.com`;
+- `frame-src https://www.tradingview-widget.com https://s.tradingview.com`;
+- `img-src https://s3-symbol-logo.tradingview.com`;
+- `connect-src`: the Single Ticker runs in the page, so its live-data connection also needs allowing. Confirm the exact host in the browser developer tools when the policy is added.
 
 ## Automatic daily updates
 

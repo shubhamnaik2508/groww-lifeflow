@@ -7,7 +7,7 @@ import {periodStats,PERIODS,type DailyClose,type IndexId,type PeriodId} from '..
 import type {NewsItem} from '../lib/market-pulse/evidence';
 import type {Brief} from '../lib/market-pulse/analyst';
 import {monthlyStats,monthName} from '../lib/market-pulse/oecd';
-import TradingViewWidget,{SENSEX_ATTRIBUTION} from './TradingViewWidget';
+import TradingViewWidget,{SENSEX_ATTRIBUTION,TvSingleTicker} from './TradingViewWidget';
 
 import type {PulseResponse,Snapshot} from '../lib/market-pulse/types';
 type Pulse=PulseResponse;
@@ -48,8 +48,7 @@ function IndexCards({snap}:{snap:Snapshot|null}){
  return <div className="mp-indices mp-indices-open">
   <article className="mp-index mp-index-tv" aria-labelledby="mp-sensex-h">
    <div className="mp-index-name" id="mp-sensex-h">BSE SENSEX <small>· end of day, via TradingView</small></div>
-   <TradingViewWidget kind="single-quote" title="BSE SENSEX end-of-day quote from TradingView" height={128} attribution={SENSEX_ATTRIBUTION}
-    config={{symbol:'BSE:SENSEX',width:'100%',isTransparent:true,colorTheme:'dark',locale:'en'}}/>
+   <TvSingleTicker symbol="BSE:SENSEX" label="BSE SENSEX end-of-day quote from TradingView"/>
    <p className="mp-tv-note">Shown and licensed by TradingView, not read by LifeFlow, so the AI brief never quotes it.</p>
   </article>
   <article className="mp-index mp-index-na" aria-labelledby="mp-nifty-h">
