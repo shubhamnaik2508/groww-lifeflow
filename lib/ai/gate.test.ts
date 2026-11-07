@@ -101,6 +101,21 @@ describe('Gate 4 — investment safety',()=>{
  it('blocks directive next steps even when the explanation is clean',()=>{failsAt({...good,next_steps:['Reduce your SIP amount for the month.']},'investment_safety')});
  it('allows restating what a fund house may do when the cited source says so',()=>{const o:ModelOutput={...good,points:[{text:'At most, the mutual fund company would stop the SIP, so further installments would not get debited from your bank account.',supports:['amfi-missed-instalment']}],uncertainty:'Your bank’s own charges are not covered here and may apply.'};expect(checkInvestmentSafety(o,'At most, the Mutual Fund Company would stop the SIP')).toBeNull()});
  it('blocks payment-rule terms that no cited source contains',()=>{expect(checkInvestmentSafety({...good,uncertainty:'NACH retries happen after three days.'})).toMatch(/payment-system rules/)});
+ // Human-labelled case h5 (2026-11-08): real Groq rent answer blocked only by this sentence.
+ it.each([
+  'Consider if any discretionary spending can be adjusted.',
+  'Consider whether your monthly expenses can be reduced.',
+  'You may want to review whether the budget for eating out can be lowered.',
+ ])('allows spending-only suggestions: %s',s=>{expect(checkInvestmentSafety({...good,next_steps:[s]})).toBeNull()});
+ it.each([
+  'Consider adjusting your SIP.',
+  'Consider reducing spending so you can invest more.',
+  'Consider reducing your expenses and saving the difference.',
+  'Consider lowering expenses and increasing your SIP contribution.',
+  'Consider reducing spending or pausing for a month.',
+  'You should cut costs and stop the mandate.',
+  'If expenses rise, consider stopping.',
+ ])('still blocks when investing is involved or the verb is not a soft spending verb: %s',s=>{expect(checkInvestmentSafety({...good,next_steps:[s]})).toMatch(/directs/)});
 });
 
 describe('Gate 5 — uncertainty',()=>{

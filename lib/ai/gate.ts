@@ -213,10 +213,22 @@ export function checkClaimSupport(o:ModelOutput,ctx:{facts:Fact[];assumptions:st
  return null;
 }
 
+// "Consider whether discretionary spending can be adjusted" is about spending, not an investment action. It is exempt only when
+// it names spending, every action verb is a soft quantity verb, and nothing in the sentence refers to investing or saving.
+const SPENDING=/\b(?:spending|expenses?|expenditure|budget|costs?|purchases?|bills?)\b/i;
+const SOFT_ACT=/^(?:adjust|reduc|lower|decreas|increas|modif|revis)/i;
+const INVESTING=new RegExp(`\\b(?:${OBJ}|invest\\w*|sav\\w*|set aside|afford)\\b`,'i');
+const ACT_WORDS=new RegExp(`\\b${ACT}`,'gi');
+function spendingOnly(s:string){
+ if(!SPENDING.test(s)||INVESTING.test(s))return false;
+ const acts=s.match(ACT_WORDS)||[];
+ return acts.length>0&&acts.every(a=>SOFT_ACT.test(a));
+}
+
 /** Gate 4: critical safety failures block regardless of anything else. */
 export function checkInvestmentSafety(o:ModelOutput,citedExcerpts=''):string|null{
  const t=allTexts(o).join(' \n ');
- for(const s of sentences(o))if(DIRECTIVE.test(s)&&!THIRD_PARTY.test(s))return 'The answer directs an investment or SIP action.';
+ for(const s of sentences(o))if(DIRECTIVE.test(s)&&!THIRD_PARTY.test(s)&&!spendingOnly(s))return 'The answer directs an investment or SIP action.';
  if(RETURNS.test(t))return 'The answer mentions returns, growth, interest, guarantees or percentages.';
  const allowedTerms=new Set((citedExcerpts.match(ACCOUNT_RULE)||[]).map(x=>x.toLowerCase()));
  // A hedged pointer to the bank ("your bank may apply its own charges; check with your bank") is a caveat, not a stated rule.
