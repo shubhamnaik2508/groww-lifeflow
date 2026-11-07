@@ -41,6 +41,10 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
   // 2. Navigation: Market Pulse is reachable from the sidebar; existing items remain.
   await page.goto(base+'/');
   for(const n of ['Home','Scenario Lab','AI Companion','My Journey','AI Reliability','Market Pulse'])assert(await page.locator('.sidebar nav').getByRole('button',{name:n,exact:true}).isVisible(),n);
+  const navOrder=await page.locator('.sidebar nav button .nav-label').allInnerTexts();
+  assert.deepEqual(navOrder,['Home','Scenario Lab','Market Pulse','AI Companion','My Journey','AI Reliability'],'Market Pulse sits above AI Companion');
+  const mobileOrder=(await page.locator('.mobile-nav button').allTextContents()).map(t=>t.replace(/^[^A-Za-z]+/,'').trim());
+  assert.deepEqual(mobileOrder,['Home','Scenario Lab','Market Pulse','AI Companion','My Journey','AI Reliability'],'same order on mobile');
   await page.locator('.sidebar nav').getByRole('button',{name:'Market Pulse',exact:true}).click();
   await page.getByRole('heading',{name:'Daily Market Brief'}).waitFor();
   assert.equal(new URL(page.url()).hash,'#market-pulse');ok('sidebar opens Market Pulse at #market-pulse');

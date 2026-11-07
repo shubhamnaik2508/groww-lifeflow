@@ -1,0 +1,12 @@
+/* "Illustrative mode" explanation. Scoped to .illustrative; the pill keeps its existing .private styling. */
+.illustrative{position:relative;display:inline-block}
+.illustrative .private{cursor:pointer;line-height:inherit}
+.illustrative .private:focus-visible{outline:3px solid #1aa0b8;outline-offset:2px}
+.illustrative-pop{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(320px,calc(100vw - 32px));padding:14px 16px;border-radius:14px;
+ background:#fff;color:#1f2d27;border:1px solid #dfe9e1;box-shadow:0 14px 34px -18px rgba(16,40,52,.55);text-align:left;letter-spacing:0;text-transform:none;font-size:13px;line-height:1.55}
+.illustrative-pop b{font-family:Manrope,sans-serif;font-size:14px}
+.illustrative-pop p{margin:6px 0 0;color:#34433c}
+.app[data-theme="blue-oceanic"] .illustrative-pop{border-color:#cfe2e8;color:#153448}
+.app[data-theme="blue-oceanic"] .illustrative-pop p{color:#2c4a59}
+.app[data-theme="dark-warm"] .illustrative-pop{background:#2b231e;border-color:#57463b;color:#f2e8dc}
+.app[data-theme="dark-warm"] .illustrative-pop p{color:#e3cfbf}
