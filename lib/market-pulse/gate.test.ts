@@ -85,3 +85,35 @@ describe('deterministic brief',()=>{
  });
  it('evidence exposes the verified history statistics as facts',()=>expect(e.facts.map(f=>f.id)).toEqual(expect.arrayContaining(['F_NIFTY_1M_PCT','F_NIFTY_1Y_PCT','F_NIFTY_1Y_HIGH','F_SENSEX_1Y_FALL'])));
 });
+
+describe('Market Pulse gate in open-data mode (no verified index closes)',()=>{
+ const pts=Array.from({length:24},(_,i)=>{const d=new Date(Date.UTC(2024,10+i,1));return {period:d.toISOString().slice(0,7),value:i===23?267.44:i===22?273.08:250+i}});
+ const monthly={name:'OECD',points:pts,source:{name:'OECD',url:'https://example.test',attribution:'OECD'},retrievedAt:'2026-11-07T00:00:00Z'};
+ const n=[{id:'N1',title:'Test Wire: Sensex ends lower on weak global cues',publisher:'Test Wire',publishedAt:'2026-11-06T11:00:00Z',url:'https://example.test/1',summary:'The Sensex closed lower, the report said.'}];
+ const eo=buildEvidence([],n,{monthly,briefDate:'2026-11-06'});
+ const base:Analysis={verdict_headline:'Market brief for 6 November 2026',
+  verdict_summary:{text:"India's share price index (OECD, monthly) fell to 267.44 in October 2026.",supports:['F_OECD_LATEST','F_OECD_MOM']},
+  market_facts:[{text:"India's share price index (OECD, monthly) was 267.44 in October 2026, −2.07% from September 2026.",supports:['F_OECD_LATEST','F_OECD_MOM']}],
+  context:[{text:'According to Test Wire, the Sensex ended lower on weak global cues.',supports:['N1']}],history_context:[],
+  sip_education:[{text:'A SIP invests a fixed amount on set dates, whatever the market level.',supports:['F_OECD_MOM']}],
+  uncertainty:['The latest daily session is not described by verified figures here.']};
+ const v=(f:(a:Analysis)=>void)=>{const a=structuredClone(base);f(a);return evaluate(a,eo)};
+ it('marks the evidence as open mode with the monthly direction',()=>{expect(eo.mode).toBe('open');expect(eo.monthlyDirection).toBe('down')});
+ it('passes an analysis that attributes index moves to cited news and states the OECD figures',()=>expect(failed(evaluate(base,eo))).toEqual([]));
+ it('blocks an index move stated without a cited news report',()=>expect(failed(v(a=>{a.market_facts[0].text='The Sensex fell in the session.'}))).toContain('direction'));
+ it('blocks a NIFTY move when the cited news only mentions the Sensex',()=>expect(failed(v(a=>{a.context[0].text='According to Test Wire, the Nifty fell.'}))).toContain('direction'));
+ it('blocks OECD wording that contradicts the verified monthly change',()=>expect(failed(v(a=>{a.verdict_summary.text="India's share price index (OECD, monthly) rose in October 2026."}))).toContain('direction'));
+ it('blocks an invented index level',()=>expect(failed(v(a=>{a.context[0].text='According to Test Wire, the Sensex closed at 81,028.02.'}))).toContain('numbers'));
+});
+
+describe('open mode: no causes for the monthly OECD figure (live-output regression)',()=>{
+ const pts=Array.from({length:24},(_,i)=>{const d=new Date(Date.UTC(2024,10+i,1));return {period:d.toISOString().slice(0,7),value:i===23?267.44:i===22?273.08:250+i}});
+ const n=[{id:'N1',title:'Test Wire: shares end lower as oil prices rise',publisher:'Test Wire',publishedAt:'2026-11-06T11:00:00Z',url:'https://example.test/1',summary:'Indian shares closed lower, with higher oil prices weighing on sentiment.'}];
+ const eo=buildEvidence([],n,{monthly:{name:'OECD',points:pts,source:{name:'OECD',url:'https://example.test',attribution:'OECD'},retrievedAt:'2026-11-07T00:00:00Z'},briefDate:'2026-11-06'});
+ const a:Analysis={verdict_headline:"India's OECD share price index slips 2% in October amid higher oil prices",
+  verdict_summary:{text:"India's share price index (OECD, monthly) was 267.44 in October 2026.",supports:['F_OECD_LATEST','N1']},
+  market_facts:[{text:"India's share price index (OECD, monthly) was 267.44 in October 2026.",supports:['F_OECD_LATEST']}],context:[],history_context:[],
+  sip_education:[{text:'A SIP invests a fixed amount on set dates, whatever the market level.',supports:['F_OECD_MOM']}],uncertainty:['The latest daily session is not described by verified figures here.']};
+ it('rejects a news cause attached to the monthly OECD change',()=>expect(failed(evaluate(a,eo))).toContain('causes'));
+ it('allows the same figures without a cause',()=>expect(failed(evaluate({...a,verdict_headline:"India's OECD share price index slips 2% in October 2026"},eo))).toEqual([]));
+});

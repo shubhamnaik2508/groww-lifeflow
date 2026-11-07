@@ -79,3 +79,27 @@ describe('safeguards for the stored brief',()=>{
   expect(r.status).toBe('updated');expect(Date.now()-t).toBeLessThan(2000);
  });
 });
+
+describe('open-data mode (no licensed index source)',()=>{
+ const pts=Array.from({length:24},(_,i)=>{const d=new Date(Date.UTC(2024,10+i,1));return {period:d.toISOString().slice(0,7),value:i===23?267.44:250+i}});
+ const monthly={name:'OECD',fetchSeries:async()=>({name:'India share price index (OECD, monthly, 2015 = 100)',points:pts,source:{name:'OECD Data Explorer',url:'https://data-explorer.oecd.org/',attribution:'OECD'},retrievedAt:now.toISOString()})};
+ const news={name:'n',fetchNews:async()=>[{id:'N1',title:'Test Wire: Sensex ends lower',publisher:'Test Wire',publishedAt:'2026-11-06T11:00:00Z',url:'https://example.test/1',summary:'The Sensex closed lower, the report said.'}]};
+ it('stores an open brief dated to the latest weekday session, with OECD facts and no index closes',async()=>{
+  const r=await refresh({indices:null,monthly,news,generate:null,model:null,now});
+  expect(r).toMatchObject({status:'updated',snapshot:{mode:'open',sessionDate:'2026-11-06',indices:[],brief:{kind:'deterministic'}}});
+  if(r.status==='updated'){expect(r.snapshot.monthly?.points).toHaveLength(24);expect(r.snapshot.brief.summary).toContain('267.44 in October 2026')}
+ });
+ it('keeps the stored brief for the same date, and on the weekend',async()=>{
+  const first=await refresh({indices:null,monthly,news,generate:null,model:null,now});if(first.status!=='updated')throw Error();
+  expect((await refresh({indices:null,monthly,news,generate:null,model:null,now,previous:first.snapshot})).status).toBe('unchanged');
+  expect((await refresh({indices:null,monthly,news,generate:null,model:null,now:new Date('2026-11-08T05:00:00Z'),previous:first.snapshot})).status).toBe('unchanged');
+ });
+ it('still publishes with news only if the OECD series fails, and notes it',async()=>{
+  const r=await refresh({indices:null,monthly:{name:'OECD',fetchSeries:async()=>{throw Error('OECD HTTP 503')}},news,generate:null,model:null,now});
+  expect(r.status).toBe('updated');if(r.status==='updated'){expect(r.snapshot.monthly).toBeNull();expect(r.snapshot.notes[0]).toContain('OECD HTTP 503')}
+ });
+ it('fails (keeping the stored brief) when neither OECD nor news is available',async()=>{
+  const r=await refresh({indices:null,monthly:{name:'OECD',fetchSeries:async()=>{throw Error('down')}},news:null,generate:null,model:null,now});
+  expect(r).toMatchObject({status:'failed',reason:expect.stringContaining('No verified open data')});
+ });
+});

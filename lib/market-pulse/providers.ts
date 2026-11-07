@@ -2,6 +2,7 @@ import 'server-only';
 import type {IndexProvider,NewsProvider} from './refresh';
 import type {DailyClose,IndexId,IndexSeries,Source} from './market';
 import type {NewsItem} from './evidence';
+import {oecdProvider,type MonthlyProvider} from './oecd';
 
 /**
  * Market Pulse data providers. Source research (2026-11-07, see MARKET_PULSE.md):
@@ -111,16 +112,20 @@ export const NEWS_SOURCES:Record<string,Source>={
  GNews:{name:'GNews',url:'https://gnews.io',attribution:'News search via GNews'},
 };
 
-export type ProviderStatus={ok:true;indices:IndexProvider;news:NewsProvider|null;newsSources:Source[]}|{ok:false;reason:string};
+export type ProviderStatus={ok:true;indices:IndexProvider|null;monthly:MonthlyProvider|null;news:NewsProvider;newsSources:Source[];licensedIndices:boolean};
 /**
- * Index data is enabled only when the operator confirms written permission to display it publicly.
- * Without that, refresh is refused and the site states the licensing blocker.
+ * Index closes come only from EODHD, and only when the operator confirms written permission for public display.
+ * Without it, Market Pulse runs in open-data mode: the OECD monthly India share price index (MARKET_PULSE_OECD=false
+ * turns it off) plus news. SENSEX is shown separately through TradingView's licensed widget in the browser.
  */
 export function configuredProviders(env:Record<string,string|undefined>=process.env):ProviderStatus{
  const token=env.EODHD_API_TOKEN?.trim();
- if(!token||env.MARKET_DATA_LICENSE_CONFIRMED!=='true')return {ok:false,reason:'Index data needs a source licensed for public display. Set EODHD_API_TOKEN and MARKET_DATA_LICENSE_CONFIRMED=true only after obtaining written permission.'};
+ const licensedIndices=!!token&&env.MARKET_DATA_LICENSE_CONFIRMED==='true';
  const providers:NewsProvider[]=[sebiNews];
  if(env.MARKET_PULSE_GDELT!=='false')providers.unshift(gdeltNews);
  if(env.GNEWS_API_KEY?.trim()&&env.GNEWS_USE_CONFIRMED==='true')providers.unshift(gnewsProvider(env.GNEWS_API_KEY.trim()));
- return {ok:true,indices:eodhdProvider(token,env.MARKET_DATA_ATTRIBUTION?.trim()||'End-of-day index data from EODHD'),news:combineNews(providers),newsSources:providers.map(p=>NEWS_SOURCES[p.name]).filter(Boolean)};
+ return {ok:true,licensedIndices,
+  indices:licensedIndices?eodhdProvider(token!,env.MARKET_DATA_ATTRIBUTION?.trim()||'End-of-day index data from EODHD'):null,
+  monthly:env.MARKET_PULSE_OECD==='false'?null:oecdProvider(),
+  news:combineNews(providers),newsSources:providers.map(p=>NEWS_SOURCES[p.name]).filter(Boolean)};
 }

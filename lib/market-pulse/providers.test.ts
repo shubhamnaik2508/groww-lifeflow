@@ -3,12 +3,11 @@ import {combineNews,configuredProviders,eodhdProvider,isoDate,parseEodhd,parseGd
 
 // Fixtures mirror each provider's documented response shape with made-up content; they are not real data.
 describe('index provider (EODHD, licence-gated)',()=>{
- it('is disabled unless written permission is confirmed',()=>{
-  expect(configuredProviders({}).ok).toBe(false);
-  expect(configuredProviders({EODHD_API_TOKEN:'x'}).ok).toBe(false);
-  expect(configuredProviders({MARKET_DATA_LICENSE_CONFIRMED:'true'}).ok).toBe(false);
+ it('enables index closes only with confirmed written permission; otherwise open-data mode (OECD + news)',()=>{
+  for(const env of [{},{EODHD_API_TOKEN:'x'},{MARKET_DATA_LICENSE_CONFIRMED:'true'}]){const p=configuredProviders(env);expect(p.indices).toBeNull();expect(p.licensedIndices).toBe(false);expect(p.monthly?.name).toBe('OECD')}
   const p=configuredProviders({EODHD_API_TOKEN:'x',MARKET_DATA_LICENSE_CONFIRMED:'true'});
-  expect(p.ok).toBe(true);if(p.ok)expect(p.newsSources.map(s=>s.name)).toEqual(['GDELT Project','SEBI RSS']);
+  expect(p.indices?.name).toBe('EODHD');expect(p.licensedIndices).toBe(true);expect(p.newsSources.map(s=>s.name)).toEqual(['GDELT Project','SEBI RSS']);
+  expect(configuredProviders({MARKET_PULSE_OECD:'false'}).monthly).toBeNull();
  });
  it('uses GNews only when its use is confirmed',()=>{
   const p=configuredProviders({EODHD_API_TOKEN:'x',MARKET_DATA_LICENSE_CONFIRMED:'true',GNEWS_API_KEY:'k'});if(p.ok)expect(p.newsSources.map(s=>s.name)).not.toContain('GNews');

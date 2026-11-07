@@ -10,19 +10,18 @@ Market Pulse is an additive feature in Groww LifeFlow (navigation item **Market 
 
 It is educational only. It makes no recommendations and executes nothing.
 
-> ## ⚠ Blocker: index data needs a licence for public display
+> ## What market data Market Pulse can legitimately show (researched 2026-11-07)
 >
-> Research on 2026-11-07 (details below) found **no free source whose terms allow showing NIFTY 50 and SENSEX values on a public website**:
-> - NSE, NSE Indices and BSE prohibit automated collection and charge for display licences.
-> - The free API tiers checked are all personal or non-display use: EODHD, Twelve Data, Alpha Vantage, FMP, Marketstack and Finnhub.
-> - Yahoo's unofficial endpoints and broker APIs are not permitted for this.
+> No free source permits a public website to display **NIFTY 50**. Market Pulse therefore combines four permitted sources, and never estimates or scrapes anything:
 >
-> So **Market Pulse ships with index data switched off.** Until a licensed source is enabled:
-> - the Daily Market Brief states the blocker and shows **no figures**;
-> - historical and news sections stay empty, because they come with the daily refresh;
-> - the SIP Decision Explorer works fully.
+> | Need | Source | What it gives | Can the AI cite it? |
+> |---|---|---|---|
+> | **SENSEX** | TradingView's free embeddable widget. BSE data is licensed for widgets; TradingView displays it under its own licence. | End-of-day quote in the hero, and a 1M–1Y chart | **No.** It is shown inside TradingView's frame; LifeFlow never reads it. |
+> | **NIFTY 50** | None. NSE symbols are blocked in free widgets; NSE Indices requires a display licence. | An honest "not shown on this free site" card, linking to NIFTY 50 on TradingView | — |
+> | **Market trend the AI can cite** | OECD SDMX API: India share prices, **monthly index (2015 = 100)**, CC BY 4.0 | Latest month, monthly, 3- and 12-month changes, and a 1–5 year chart | **Yes.** Verified, labelled as monthly and "not the NIFTY 50 or SENSEX level". |
+> | **News** | SEBI RSS and the GDELT Project (GNews optional) | Publishers' own headlines and links | **Yes**, with attribution; an index move only via a cited report |
 >
-> Nothing is estimated, sampled or scraped.
+> **Licensed mode is still built.** With written permission and `EODHD_API_TOKEN` plus `MARKET_DATA_LICENSE_CONFIRMED=true`, the hero switches to verified daily NIFTY 50 and SENSEX closes, as originally specified.
 
 ## Page structure (fixed order)
 
@@ -98,40 +97,51 @@ Those generations used synthetic data, so this shows the gate works with real mo
 
 ## Data-source decision (researched 2026-11-07)
 
-| Need | Decision | Why |
+| Source | Decision | Why |
 |---|---|---|
-| NIFTY 50 and SENSEX values | **EODHD, only after written permission** (`MARKET_DATA_LICENSE_CONFIRMED=true`) | The free plan has 20 calls a day and 1 year of end-of-day history, which fits (≈4 calls a day). Its terms make the free plan personal use and forbid public display, so written permission is needed. Tickers `NSEI.INDX` and `BSESN.INDX` are not yet verified with a real key. |
-| Rejected | NSE, NSE Indices and BSE files or pages; Yahoo; Kite, Upstox, Dhan and Angel One; Twelve Data, Alpha Vantage, FMP, Marketstack and Finnhub free tiers | These sources ban automated collection, require a paid display licence, or are personal or non-display use only |
-| News | **SEBI RSS** (official; linking needs no permission, though SEBI asks to be informed) and **GDELT** (open use, must cite GDELT: done in Evidence) | Both are free and permitted for headline and link display |
-| News, optional | **GNews** (`GNEWS_API_KEY` and `GNEWS_USE_CONFIRMED=true`) | Free plan is "non-commercial use". Confirm with contact@gnews.io that a public student site qualifies. |
-| Not used | ET, Mint and BusinessLine RSS; RBI deep links; NewsAPI.org free plan | Personal use or prohibited display; RBI requires permission for links; NewsAPI's free plan is development only |
+| **TradingView widgets** (Single Quote, Symbol Overview) for `BSE:SENSEX` | **Used** | The widget docs list BSE as end-of-day "Stocks, Indices & Futures"; the widgets are free for non-commercial sites. TradingView policies §4: attribution must stay visible and unaltered, so it is never restyled; on dark surfaces it sits on a light pill for contrast. TradingView receives visitors' IP address and the page URL; the widgets set no cookies. |
+| **TradingView `NSE:NIFTY`** | Not available | Widgets show "This symbol is only available on TradingView", meaning it isn't licensed for widgets |
+| **OECD SDMX API**, `DSD_STES@DF_FINMARK`, IND.M.SHARE | **Used** | Free and keyless; CC BY 4.0 since July 2024, cited on the page. Monthly index, not a daily close. The OECD notes third-party material may need the owner's permission; the series is OECD-compiled. Switch it off with `MARKET_PULSE_OECD=false`. |
+| **SEBI RSS, GDELT** | **Used** | Headline and link display is permitted; GDELT is credited |
+| **EODHD** | Built, off until written permission | Its free plan is personal use only |
+| **RBI DBIE** | Not automated | It has real daily NIFTY 50 closes, but no public API (the site uses token-gated internal calls) and runs about a week behind. A person can export it manually. |
+| NSE, NSE Indices, BSE; Yahoo Finance; Google Finance; broker APIs | Rejected | They ban automated collection, require display licences, or only allow personal use. NSE also requires permission to link, so no links to nseindia.com are shown. |
+| Investing.com widgets | Rejected | Display needs written permission |
+| GitHub projects: `NSE-MCP` (browser imitation against NSE's internal endpoints, plus Yahoo) and `Indian-Stock-Market-API` (yfinance) | Rejected | They wrap the same prohibited sources. An open-source licence covers the code, not the data. |
+| MiroFish and BettaFish (multi-agent prediction and social-listening frameworks) | Not applicable | They supply no market data, and MiroFish's purpose (forecasting) conflicts with Market Pulse's no-prediction rule |
+| FRED, Alpha Vantage, Stooq, data.gov.in | Rejected | Copyrighted series, personal use only, redistribution banned, or stale data |
 
 ## Turning it on
 
-1. **Get permission for index data.**
-   - Email EODHD (sales@eodhistoricaldata.com). Ask to display two end-of-day index closes and a 1-year chart on a free, non-commercial educational site, with attribution.
-   - Or obtain an end-of-day display licence or waiver from NSE Indices and BSE.
-   - Keep the reply.
-2. **Storage.** In Vercel, go to Storage (Marketplace) → **Upstash for Redis** and connect it to the project. This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`. Alternatively, set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`; the same values also enable the shared AI rate limiter.
-3. **Environment variables** (Production; server-side; never use `NEXT_PUBLIC_`):
-   - `CRON_SECRET`: at least 16 random characters. Vercel Cron sends it automatically.
-   - `EODHD_API_TOKEN`: from the EODHD account.
-   - `MARKET_DATA_LICENSE_CONFIRMED=true`: only once permission is in writing.
-   - `MARKET_DATA_ATTRIBUTION`: the attribution text the licence requires.
-   - Optional: `GNEWS_API_KEY` with `GNEWS_USE_CONFIRMED=true`; `MARKET_PULSE_GDELT=false` to switch GDELT off.
-   - `GROQ_API_KEY` is already set. Without it, the deterministic brief is shown.
-4. **Deploy, then run the first refresh** instead of waiting for the cron:
+**Works with no setup:**
+- the SENSEX quote and chart (TradingView, loaded in the visitor's browser);
+- the NIFTY 50 explanation;
+- the SIP Decision Explorer.
+
+**Before merging, one owner step:**
+1. Create a free TradingView account.
+2. Open the widget builder for Symbol Overview and Single Ticker with `BSE:SENSEX`.
+3. Confirm the generated code matches `app/TradingViewWidget.tsx`: script URLs and the attribution link "Track all markets on TradingView". Their builder requires an account to copy code, which accepts TradingView's terms.
+
+**For the daily AI brief** (OECD and news; no licence needed):
+1. In Vercel, connect **Upstash for Redis** (Storage → Marketplace). This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+2. Set `CRON_SECRET` (at least 16 random characters). `GROQ_API_KEY` is already set.
+3. Deploy, then run the first refresh (or wait for the 18:30 IST job):
 
 ```bash
-curl -H "Authorization: Bearer $CRON_SECRET" "https://groww-lifeflow.vercel.app/api/market-pulse/refresh?force=1"
+curl -H "Authorization: Bearer $CRON_SECRET" https://groww-lifeflow.vercel.app/api/market-pulse/refresh
 ```
 
-5. **Check:**
-   - `GET /api/market-pulse` returns `status: "ok"`;
-   - the session date matches the exchange's latest session;
-   - compare both closes with nseindia.com and bseindia.com.
+**Optional: licensed daily closes.** With written permission from EODHD (or a licence from NSE Indices and BSE), set:
+- `EODHD_API_TOKEN`;
+- `MARKET_DATA_LICENSE_CONFIRMED=true`;
+- `MARKET_DATA_ATTRIBUTION`.
 
-See **Automatic daily updates** below for the schedule and how the job behaves.
+The hero then shows verified NIFTY 50 and SENSEX closes.
+
+**If a Content-Security-Policy is added later** (it is on the separate `level-up-evidence-tooling` branch), allow:
+- `script-src https://s3.tradingview.com`;
+- `frame-src https://www.tradingview-widget.com https://s.tradingview.com`.
 
 ## Automatic daily updates
 
@@ -196,10 +206,16 @@ The project's plan couldn't be read from this machine (no Vercel CLI or project 
 | `refresh.test.ts` (11) | Update, unchanged session, provider and verification failures, news failure tolerated, mismatched session dates; **older session never overwrites; AI retry upgrade; failed retry keeps the stored brief; no downgrade from AI; new session stored when AI fails; slow-news time cap** |
 | `providers.test.ts` (8) | Licence gate; EODHD request and parse (token not leaked); SEBI date format; RSS, GDELT and GNews parsing; news window and de-duplication |
 | `routes.test.ts` (7) | Licence-blocker message; empty and served states; cron auth; no fetch without licence; full refresh to store; unchanged rerun; **lock skip and release; run status on updated, unchanged and failed runs; previous brief kept unchanged on failure; Last checked on the page** |
-| `scripts/market-pulse-e2e.cjs` (10 checks) | Navigation; exact section order; hero contents; explorer arithmetic and validation; chart keyboard reading; news; insight; stale and unavailable states; 320/375/768 px; mobile nav; no page errors. Uses synthetic data **inside the test only**. |
-| axe-core | 0 WCAG 2.2 AA violations on Market Pulse in all three themes, with and without data, at 1440 and 375 px |
+| `scripts/market-pulse-e2e.cjs` (11 checks; TradingView's script is stubbed inside the test) | **Open-data mode: SENSEX widget with attribution, NIFTY 50 unavailable with no figures, no exchange links, labelled OECD chart.**  Navigation; exact section order; hero contents; explorer arithmetic and validation; chart keyboard reading; news; insight; stale and unavailable states; 320/375/768 px; mobile nav; no page errors. Uses synthetic data **inside the test only**. |
+| axe-core | 0 WCAG 2.2 AA violations on Market Pulse in all three themes, with and without data, at 1440 and 375 px, including the real TradingView widgets |
+| Open-data gate tests (`gate.test.ts`, +6) | An index move without a cited report is blocked; a NIFTY move citing a SENSEX-only report is blocked; OECD wording must match the verified monthly change; invented index levels are blocked |
 
 ## Limitations
+
+- **NIFTY 50 is not shown**, and the AI can't quote SENSEX values, because the widget's data isn't readable. The AI describes the OECD monthly index and reported news only.
+- **The OECD series is monthly** and arrives some days after each month ends. It is not the NIFTY 50 or SENSEX level.
+- **Open-mode brief dates are the latest weekday.** Exchange holidays aren't verified, so a holiday's brief carries the holiday's date with the previous news.
+- **TradingView controls the widgets** (look, availability, symbols). If BSE coverage changes, re-check the widget-docs markets page.
 
 - **No live index data until a licence is in place** (the blocker above). The EODHD integration is tested against its documented format, not a real response.
 - **Exchange holidays aren't listed.** One weekday behind is shown as "may be a market holiday", using the source's own latest date.

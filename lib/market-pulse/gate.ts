@@ -76,19 +76,32 @@ export function evaluate(raw:unknown,e:Evidence):GateResult{
   const ok=allowedNumbers(e,c.supports);const bad=numbersIn(c.text).find(n=>!ok.some(v=>Math.abs(v-n)<=0.011));return bad===undefined?null:`${bad} in “${c.text.slice(0,80)}”`}).find(Boolean);
  fail('numbers','Every number matches a verified figure or cited source',numberProblem??undefined);
 
- // Direction: wording must agree with the verified sign of each index.
- const dir=Object.fromEntries(e.indices.map(i=>[i.id,i.session.direction]));
- const directionProblem=all.find(t=>t.split(/(?<=[.;])\s+/).some(s=>{
-  const up=UP.test(s),down=DOWN.test(s);if(!up&&!down)return false;
-  // Sentences about history or a period describe other timeframes; directions there are checked by numbers only.
-  if(/\b(year|month|months|period|since|over the|1Y|6M|3M|1M|history|historically|past)\b/i.test(s))return false;
+ // Direction: wording must agree with verified signs. A named index (NIFTY 50, SENSEX) is checked against its
+ // verified daily change; when no verified close exists (open-data mode), a move may only be stated by citing a news
+ // item that mentions that index. Wording about the OECD index is checked against its verified monthly change.
+ const dir:Record<string,string>=Object.fromEntries(e.indices.map(i=>[i.id,i.session.direction]));
+ const NAME:Record<string,RegExp>={nifty50:NIFTY,sensex:SENSEX};
+ const OECD=/\b(OECD|share price index)\b/i;
+ const citedMentions=(supports:string[],re:RegExp)=>e.news.some(n=>supports.includes(n.id)&&re.test(`${n.title} ${n.summary}`));
+ const directional=[{text:a.verdict_headline,supports:a.verdict_summary.supports},...claims.map(x=>x.c),...a.uncertainty.map(t=>({text:t,supports:[] as string[]}))];
+ const directionProblem=directional.find(c=>c.text.split(/(?<=[.;])\s+/).some(sent=>{
+  const up=UP.test(sent),down=DOWN.test(sent);if(!up&&!down)return false;
   // General or hypothetical explanations ("in a rising market…", "if prices fall…") are not claims about the session.
-  if(/\b(if|when|whenever|whether|in a (?:rising|falling|volatile)|a (?:rising|falling) market|tends? to|can|may|could)\b/i.test(s))return false;
-  // Only sentences that name an index, or the benchmarks/indices collectively, are checked against the verified sign.
-  const targets=NIFTY.test(s)||SENSEX.test(s)?[NIFTY.test(s)&&'nifty50',SENSEX.test(s)&&'sensex'].filter(Boolean) as string[]:/\b(benchmarks?|indices)\b/i.test(s)?Object.keys(dir):[];
-  return targets.some(t=>(up&&!down&&dir[t]!=='up')||(down&&!up&&dir[t]!=='down'));
+  if(/\b(if|when|whenever|whether|in a (?:rising|falling|volatile)|a (?:rising|falling) market|tends? to|can|may|could)\b/i.test(sent))return false;
+  const wrong=(d:string|null|undefined)=>(up&&!down&&d!=='up')||(down&&!up&&d!=='down');
+  if(OECD.test(sent))return wrong(e.monthlyDirection);
+  // Sentences about history or a period describe other timeframes; directions there are checked by numbers only.
+  if(/\b(year|month|months|period|since|over the|1Y|6M|3M|1M|history|historically|past)\b/i.test(sent))return false;
+  const named=(['nifty50','sensex'] as const).filter(t=>NAME[t].test(sent));
+  const targets=named.length?named:/\b(benchmarks?|indices)\b/i.test(sent)?(e.indices.length?Object.keys(dir):['benchmarks']):[];
+  return targets.some(t=>{
+   if(dir[t])return wrong(dir[t]);
+   // No verified close: only a cited news item that mentions this index may report its move.
+   const re=t==='benchmarks'?/\b(sensex|nifty|benchmarks?|indices)\b/i:NAME[t];
+   return !citedMentions(c.supports,re);
+  });
  }));
- fail('direction','Up/down wording matches the verified change',directionProblem?`“${directionProblem.slice(0,100)}”`:undefined);
+ fail('direction','Up/down wording matches verified figures or a cited news report',directionProblem?`“${directionProblem.text.slice(0,100)}”`:undefined);
 
  // Dates: no relative-day words; the session is named by its actual date.
  const relative=all.find(t=>RELATIVE_DAY.test(t));
@@ -99,6 +112,11 @@ export function evaluate(raw:unknown,e:Evidence):GateResult{
   const w=new Set(words(x.c.text.replace(CAUSAL,' ')));return !cited.some(n=>words(`${n.title} ${n.summary}`).filter(t=>w.has(t)).length>=2)});
  fail('causes','Any cause is supported by a cited news item',causal?`Unsupported cause: “${causal.c.text.slice(0,100)}”`:undefined);
  const headlineCausal=CAUSAL.test(a.verdict_headline)&&!a.verdict_summary.supports.some(s=>newsIds.has(s));
+ // Open mode: the OECD figure covers a past month while news covers recent days, so no cited story can explain it.
+ // Any causal wording in a sentence about the OECD index is rejected (regression: "slips 2% in October amid higher oil prices").
+ const OECD_CAUSE=/\b(OECD|share price index)\b/i;
+ const oecdCausal=e.mode==='open'?[a.verdict_headline,...claims.map(x=>x.c.text),...a.uncertainty].flatMap(t=>t.split(/(?<=[.;])\s+/)).find(sn=>OECD_CAUSE.test(sn)&&CAUSAL.test(sn.replace(/\bafter\s+(?:a|an|the)?\s*\d/gi,''))):undefined;
+ if(oecdCausal)checks[checks.length-1]={id:'causes',label:'Any cause is supported by a cited news item',passed:false,detail:`A monthly OECD change is linked to a cause: “${oecdCausal.slice(0,100)}”`};
  if(headlineCausal)checks[checks.length-1]={id:'causes',label:'Any cause is supported by a cited news item',passed:false,detail:'The headline states a cause without a cited news item'};
 
  // Investment safety.

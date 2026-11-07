@@ -33,7 +33,6 @@ export async function GET(req:Request){
  const record=async(status:RunStatus['lastStatus'],detail:string)=>{
   try{await writeStatus(nextStatus(await readStatus(),at,status,detail));await logRun({at,status,detail})}catch{/* status is best effort; the brief itself is already safe */}
  };
- if(!providers.ok){await record('failed','No licensed index data source is configured.');log({status:'failed',reason:'provider_not_configured'});return json({error:'provider_not_configured',detail:providers.reason},503)}
  const token=randomUUID();
  let lock:string|null=null;
  try{lock=await acquireLock(token)}catch{log({status:'failed',reason:'store_unavailable'});return json({error:'store_unavailable'},503)}
@@ -42,7 +41,7 @@ export async function GET(req:Request){
   const previous=await readLatest<Snapshot>().catch(()=>null);
   const c=groqConfig();
   let result:RefreshResult;
-  try{result=await refresh({indices:providers.indices,news:providers.news,generate:c.configured?groqGenerate(c):null,model:c.configured?c.model:null,previous,force})}
+  try{result=await refresh({indices:providers.indices,monthly:providers.monthly,news:providers.news,generate:c.configured?groqGenerate(c):null,model:c.configured?c.model:null,previous,force})}
   catch(e){result={status:'failed',reason:`Unexpected error: ${(e as Error)?.message?.slice(0,160)??'unknown'}`}}
   const ms=Date.now()-started;
   if(result.status==='updated'){
