@@ -13,7 +13,11 @@ const SRC:Record<TvWidget,string>={
  'symbol-overview':'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js',
 };
 
-export default function TradingViewWidget({kind,config,title,height}:{kind:TvWidget;config:Record<string,unknown>;title:string;height:number}){
+/** Attribution exactly as TradingView's widget builder generates it (for BSE:SENSEX: "SENSEX quote by TradingView"). */
+export type TvAttribution={symbolPage:string;label:string};
+export const SENSEX_ATTRIBUTION:TvAttribution={symbolPage:'https://www.tradingview.com/symbols/BSE-SENSEX/',label:'SENSEX quote'};
+
+export default function TradingViewWidget({kind,config,title,height,attribution}:{kind:TvWidget;config:Record<string,unknown>;title:string;height:number;attribution:TvAttribution}){
  const host=useRef<HTMLDivElement>(null);
  const json=JSON.stringify(config);
  useEffect(()=>{
@@ -29,6 +33,6 @@ export default function TradingViewWidget({kind,config,title,height}:{kind:TvWid
  },[kind,json,title]);
  return <div className="tradingview-widget-container mp-tv" ref={host} style={{height}}>
   <div className="tradingview-widget-container__widget" style={{height:'calc(100% - 28px)'}}/>
-  <div className="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span className="blue-text">Track all markets on TradingView</span></a></div>
+  <div className="tradingview-widget-copyright"><a href={attribution.symbolPage} rel="noopener nofollow" target="_blank"><span className="blue-text">{attribution.label}</span></a><span className="trademark">{'\u00a0by TradingView'}</span></div>
  </div>;
 }

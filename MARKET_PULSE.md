@@ -121,7 +121,7 @@ Those generations used synthetic data, so this shows the gate works with real mo
 **Before merging, one owner step:**
 1. Create a free TradingView account.
 2. Open the widget builder for Symbol Overview and Single Ticker with `BSE:SENSEX`.
-3. Confirm the generated code matches `app/TradingViewWidget.tsx`: script URLs and the attribution link "Track all markets on TradingView". Their builder requires an account to copy code, which accepts TradingView's terms.
+3. Done on 2026-11-07: the builder's generated code was compared with `app/TradingViewWidget.tsx`. Same script URLs and the exact attribution ("SENSEX quote by TradingView", linking to TradingView's SENSEX page). LifeFlow keeps daily date ranges (1M–1Y), because the builder's default intraday ranges are empty for end-of-day BSE data.
 
 **For the daily AI brief** (OECD and news; no licence needed):
 1. In Vercel, connect **Upstash for Redis** (Storage → Marketplace). This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.

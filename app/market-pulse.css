@@ -155,5 +155,6 @@
 /* Dark Warm: keep TradingView's attribution exactly as designed by giving the light chart widget a light surface. */
 .app[data-theme="dark-warm"] .mp-history .mp-tv{background:#fff;border-radius:12px;padding:8px 10px;box-sizing:content-box}
 /* Hero (dark): TradingView's attribution keeps its own colours on a light pill so it stays readable (≈5:1). */
-.mp-hero .mp-tv .tradingview-widget-copyright{text-align:right}
-.mp-hero .mp-tv .tradingview-widget-copyright a{display:inline-block;background:#fff;border-radius:999px;padding:0 10px;line-height:24px;margin-top:2px}
+.mp-hero .mp-tv{text-align:right}
+.mp-hero .mp-tv .tradingview-widget-copyright{display:inline-block;background:#fff;border-radius:999px;padding:0 10px;line-height:24px;margin-top:2px;text-align:left}
+.mp-tv .tradingview-widget-copyright .trademark{color:#4b5563}

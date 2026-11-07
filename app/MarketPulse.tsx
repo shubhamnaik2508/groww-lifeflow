@@ -7,7 +7,7 @@ import {periodStats,PERIODS,type DailyClose,type IndexId,type PeriodId} from '..
 import type {NewsItem} from '../lib/market-pulse/evidence';
 import type {Brief} from '../lib/market-pulse/analyst';
 import {monthlyStats,monthName} from '../lib/market-pulse/oecd';
-import TradingViewWidget from './TradingViewWidget';
+import TradingViewWidget,{SENSEX_ATTRIBUTION} from './TradingViewWidget';
 
 import type {PulseResponse,Snapshot} from '../lib/market-pulse/types';
 type Pulse=PulseResponse;
@@ -48,7 +48,7 @@ function IndexCards({snap}:{snap:Snapshot|null}){
  return <div className="mp-indices mp-indices-open">
   <article className="mp-index mp-index-tv" aria-labelledby="mp-sensex-h">
    <div className="mp-index-name" id="mp-sensex-h">BSE SENSEX <small>· end of day, via TradingView</small></div>
-   <TradingViewWidget kind="single-quote" title="BSE SENSEX end-of-day quote from TradingView" height={128}
+   <TradingViewWidget kind="single-quote" title="BSE SENSEX end-of-day quote from TradingView" height={128} attribution={SENSEX_ATTRIBUTION}
     config={{symbol:'BSE:SENSEX',width:'100%',isTransparent:true,colorTheme:'dark',locale:'en'}}/>
    <p className="mp-tv-note">Shown and licensed by TradingView, not read by LifeFlow, so the AI brief never quotes it.</p>
   </article>
@@ -128,8 +128,8 @@ function History({snap}:{snap:Snapshot|null}){
  return <section className="card mp-history" aria-labelledby="mp-hist"><h2 id="mp-hist">Historical Market Trends</h2>
   {snap&&snap.indices.length?<VerifiedHistory snap={snap}/>:<>
    <h3 id="mp-sensex-chart">BSE SENSEX: 1 month to 1 year (end of day, TradingView)</h3>
-   <TradingViewWidget kind="symbol-overview" title="BSE SENSEX history chart from TradingView" height={440}
-    config={{symbols:[['SENSEX','BSE:SENSEX|12M']],chartOnly:false,width:'100%',height:'100%',locale:'en',colorTheme:'light',autosize:true,showVolume:false,chartType:'area',dateRanges:['1m|1D','3m|1D','6m|1D','12m|1D']}}/>
+   <TradingViewWidget kind="symbol-overview" title="BSE SENSEX history chart from TradingView" height={440} attribution={SENSEX_ATTRIBUTION}
+    config={{symbols:[['BSE:SENSEX|12M']],chartOnly:false,width:'100%',height:'100%',locale:'en',colorTheme:'light',autosize:true,showVolume:false,chartType:'area',dateRanges:['1m|1D','3m|1D','6m|1D','12m|1D']}}/>
    <p className="mp-small">Use the 1M, 3M, 6M and 12M tabs inside the chart. The chart is displayed by TradingView in your browser, which receives your IP address and this page’s address. LifeFlow does not read or store its values. NIFTY 50 history isn’t available to embed on a free site.</p>
    {snap?.monthly&&snap.monthly.points.length>1?<MonthlyHistory m={snap.monthly}/>:null}
   </>}
