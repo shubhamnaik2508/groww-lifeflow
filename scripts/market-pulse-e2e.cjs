@@ -32,6 +32,10 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
   const ctx=await browser.newContext({viewport:{width:1366,height:900}});
   await ctx.addInitScript(()=>{try{localStorage.setItem('lifeflow-onboarded','yes')}catch{}});
   const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));
+  const tvRequests=[];
+  // The Single Ticker web component module is also stubbed inside the test (defines <tv-single-ticker>).
+  await page.route('https://widgets.tradingview-widget.com/**',route=>{tvRequests.push(route.request().url());route.fulfill({status:200,contentType:'text/javascript',body:"if(!customElements.get('tv-single-ticker'))customElements.define('tv-single-ticker',class extends HTMLElement{connectedCallback(){this.textContent='SENSEX (test stub) · SENSEX quote by TradingView'}})"})});
+  await page.route('https://s3.tradingview.com/**',route=>{tvRequests.push(route.request().url());route.fulfill({status:200,contentType:'text/javascript',body:"(function(s){if(!s||!s.parentNode)return;var d=document.createElement('div');d.className='tv-stub';d.textContent='TradingView widget (test stub): '+JSON.parse(s.text).symbol||'';s.parentNode.appendChild(d)})(document.currentScript)"})});
   await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'current',weekdaysBehind:0,latestPossible:'2026-11-06'},checkedAt:'2026-11-07T13:30:00Z',lastRunFailed:false}));
 
   // 2. Navigation: Market Pulse is reachable from the sidebar; existing items remain.
@@ -79,12 +83,47 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
   // 8. Stale and unavailable states never show invented figures.
   await page.unroute('**/api/market-pulse');
   await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'stale',weekdaysBehind:3,latestPossible:'2026-11-11'},checkedAt:'2026-11-06T13:05:00Z',lastRunFailed:true}));
-  await page.reload();await page.getByText(/Stale: 3 weekdays behind/).waitFor();assert(await page.getByText(/last verified session/).isVisible());assert(await page.getByText(/latest scheduled refresh did not complete/).isVisible());
+  await page.reload();await page.getByText(/Stale: 3 weekdays behind/).waitFor();assert(await page.locator('.mp-stale').getByText(/last verified brief/).isVisible());assert(await page.getByText(/latest scheduled refresh did not complete/).isVisible());
   await page.unroute('**/api/market-pulse');
   await page.route('**/api/market-pulse',fulfil({status:'not_configured',message:'Market Pulse storage is not configured on this server.'}));
-  await page.reload();await page.getByText('Market data is not available right now.').waitFor();
-  assert.equal(await page.locator('.mp-index').count(),0);assert(await page.getByText('No sample or illustrative chart is shown.').isVisible());
+  await page.reload();await page.getByText('The daily AI brief is not available right now.').waitFor();
+  assert(!(await page.locator('.mp-hero').innerText()).match(/\d{2},\d{3}\.\d{2}/),'no index figures without a brief');
   assert((await page.locator('.mp-explorer .mp-baseline').innerText()).includes('₹'));ok('stale notice; unavailable state shows no figures and the explorer still works');
+
+  // 8b. Open-data mode: SENSEX via TradingView widget (attribution kept), NIFTY 50 honestly unavailable, OECD monthly brief.
+  const months=Array.from({length:24},(_,i)=>{const d=new Date(Date.UTC(2024,10+i,1));return {period:d.toISOString().slice(0,7),value:i===23?267.44:250+i}});
+  const openSnap={...snapshot,mode:'open',indices:[],monthly:{name:'India share price index (OECD, monthly, 2015 = 100)',points:months,source:{name:'OECD Data Explorer',url:'https://data-explorer.oecd.org/',attribution:'OECD (2026), test attribution'}},
+   brief:{...snapshot.brief,kind:'deterministic',analysis:null,headline:'TEST OPEN BRIEF for 6 November 2026',summary:'TEST OPEN SUMMARY.',note:'TEST OPEN NOTE.',fallbackReason:'AI is not configured on this server.',checks:[]},sources:[{name:'OECD Data Explorer',url:'https://data-explorer.oecd.org/',attribution:'OECD (2026), test attribution'}]};
+  await page.unroute('**/api/market-pulse');
+  await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot:openSnap,freshness:{status:'current',weekdaysBehind:0,latestPossible:'2026-11-06'},checkedAt:null,lastRunFailed:false}));
+  await page.reload();await page.locator('.mp-index-tv tv-single-ticker[symbol="BSE:SENSEX"]').waitFor();await page.locator('.mp-history .tv-stub').waitFor();
+  const hero2=await page.locator('.mp-hero').innerText();
+  for(const t of ['Brief for','BSE SENSEX','end of day, via TradingView','NIFTY 50','Not shown on this free site','View NIFTY 50 on TradingView','TEST OPEN BRIEF','TEST OPEN NOTE'])assert(hero2.includes(t),'open hero shows '+t);
+  assert.equal(await page.locator('.mp-index-tv tv-single-ticker').getAttribute('theme'),'dark');
+  assert.equal(await page.locator('.mp-index-tv .tradingview-widget-copyright').count(),0,'the web component draws its own attribution; none is added');
+  assert(await page.locator('.mp-history .tradingview-widget-copyright a[href="https://www.tradingview.com/symbols/BSE-SENSEX/"]').isVisible(),'chart attribution visible');
+  assert.equal((await page.locator('.mp-history .tradingview-widget-copyright').innerText()).replace(/\s+/g,' ').trim(),'SENSEX quote by TradingView','chart attribution exactly as generated by TradingView');
+  assert.equal(await page.locator('.mp-index-na').getByText(/\d{2},\d{3}/).count(),0,'no NIFTY figure');
+  assert(tvRequests.some(u=>u.endsWith('/w/en/tv-single-ticker.js'))&&tvRequests.some(u=>u.endsWith('embed-widget-symbol-overview.js')),'both widgets requested');
+  assert.equal(await page.locator('a[href*="nseindia.com"], a[href*="bseindia.com"]').count(),0,'no links to exchange sites');
+  const histText=await page.locator('.mp-history').innerText();
+  assert(histText.includes('BSE SENSEX: 1 month to 1 year')&&histText.includes('not the NIFTY 50 or SENSEX level')&&histText.includes('267.44'),'history shows SENSEX widget and labelled OECD chart');
+  assert(await page.locator('.mp-history .mp-tv .tradingview-widget-copyright a').isVisible());
+  assert((await page.locator('.mp-connect').innerText()).includes('OECD, monthly'));
+  ok('open-data mode: SENSEX widget with attribution, NIFTY 50 unavailable without figures, labelled OECD monthly chart');
+
+  // 8c. Market videos (YouTube): hidden without a key; with one, a separate block with YouTube terms and privacy links.
+  assert.equal(await page.locator('.mp-videos').count(),0,'videos block hidden when YouTube is not configured');
+  await page.route('**/api/market-pulse/videos',fulfil({status:'ok',partial:false,fetchedAt:'2026-11-06T13:00:00Z',channels:[{name:'moneycontrol',url:'https://www.youtube.com/@moneycontrol'},{name:'CNBC-TV18',url:'https://www.youtube.com/@CNBC-TV18'}],
+   videos:[{videoId:'test0000001',title:'TEST VIDEO: Sensex closing wrap',channel:'CNBC-TV18',publishedAt:'2026-11-06T11:00:00Z',thumbnail:null,url:'https://www.youtube.com/watch?v=test0000001'}]}));
+  await page.reload();await page.locator('.mp-videos').waitFor();
+  const vids=page.locator('.mp-videos');
+  assert(await vids.getByRole('link',{name:/TEST VIDEO: Sensex closing wrap/}).isVisible());assert((await vids.innerText()).includes('End-of-day market videos'));
+  assert(await vids.getByRole('link',{name:/Terms of Service/}).isVisible()&&await vids.getByRole('link',{name:/Google Privacy Policy/}).isVisible());
+  assert((await vids.innerText()).includes('from YouTube'));
+  assert.equal(await page.locator('.mp-news-list .mp-video-title').count(),0,'videos are not mixed into the headline list');
+  await page.unroute('**/api/market-pulse/videos');
+  ok('market videos: hidden without a key; separate YouTube block with terms and privacy links');
 
   // 9. Mobile: no horizontal scroll, all six nav destinations, back to other features.
   await page.unroute('**/api/market-pulse');await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'current',weekdaysBehind:0,latestPossible:'2026-11-06'}}));

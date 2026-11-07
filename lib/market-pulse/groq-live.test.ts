@@ -39,3 +39,17 @@ describe.skipIf(!live)('Market Pulse analyst with real Groq (synthetic evidence)
   expect(results.length).toBe(3);
  },120000);
 });
+
+describe.skipIf(!live)('Market Pulse analyst with real Groq, open-data mode (synthetic evidence)',()=>{
+ it('reports how many of 3 open-mode generations pass the gate',async()=>{
+  const c=groqConfig();if(!c.configured)return;
+  const pts=Array.from({length:24},(_,i)=>{const d=new Date(Date.UTC(2024,10+i,1));return {period:d.toISOString().slice(0,7),value:i===23?267.44:i===22?273.08:250+i}});
+  const e=buildEvidence([],[{id:'N1',title:'Synthetic Wire: Sensex ends lower as crude oil prices rise',publisher:'Synthetic Wire',publishedAt:'2026-11-06T11:00:00Z',url:'https://example.test/1',summary:'The Sensex closed lower, with higher crude oil prices weighing on sentiment, the report said.'},...news.slice(1)],
+   {monthly:{name:'India share price index (OECD, monthly, 2015 = 100)',points:pts,source:src,retrievedAt:now.toISOString()},briefDate:'2026-11-06'});
+  const gen=groqGenerate(c);let raw='';const capture:typeof gen=async req=>{raw=await gen(req);return raw};
+  for(let i=0;i<3;i++){const b=await analyse(e,capture,c.model,now);
+   console.log(`open run ${i+1}: ${b.kind} | failed: ${b.checks.filter(x=>!x.passed).map(x=>x.id).join(', ')||'none'}`);if(b.kind==='ai')console.log(`  headline: ${b.headline}`);
+   try{for(const ch of evaluate(JSON.parse(raw),e).checks.filter(x=>!x.passed))console.log(`  ${ch.id}: ${ch.detail}`)}catch{console.log('  (unparseable output)')}
+   await new Promise(r=>setTimeout(r,2500))}
+ },120000);
+});
