@@ -13,7 +13,7 @@ type AIStatus={ai_available:boolean;model:string;unavailable_reason:string|null;
 const COMPANION_API='/api/lifeflow/companion';
 
 const disclaimer='Groww LifeFlow is an educational financial habit-support prototype. It does not provide investment advice, recommend mutual funds or securities, guarantee returns, access your real investment account or execute financial transactions. Verify account-specific payment information with your bank or fund house.';
-const nav=[['Home','⌂'],['Scenario Lab','◈'],['AI Companion','✳'],['My Journey','◷'],['AI Reliability','◎'],['Market Pulse','∿']];
+const nav=[['Home','⌂'],['Scenario Lab','◈'],['Market Pulse','∿'],['AI Companion','✳'],['My Journey','◷'],['AI Reliability','◎']];
 const navHashes:Record<string,string>={'Home':'home','Scenario Lab':'scenario-lab','AI Companion':'ai-companion','My Journey':'my-journey','AI Reliability':'ai-reliability','Market Pulse':'market-pulse'};
 const options=[['expense','Unexpected expense','A surprise cost changes this month.','↗'],['salary','Salary delayed','Understand timing around your SIP.','◷'],['rent','Rent increase','See what a higher rent changes.','⌂'],['job','Job transition','Explore a change in income.','⇄'],['failure','SIP debit failure','Know what information to check.','!']];
 type Event={id:string;date:string;title:string;kind:string};
