@@ -37,4 +37,5 @@ The AI Reliability panel imports one JSON file:
 
 - `lifeflow-engineering-fixture.json` — **engineering fixture, not human labels.** It was written by an AI coding assistant to exercise the pipeline and the Reliability workflow. Its expected results restate LifeFlow's own design rules. It must not be reported as evaluation evidence or used to compute accuracy.
 
-No genuine human-labelled LifeFlow assistant dataset exists in this repository. The separate SIP Discovery Engine contains 20 evidence-theme fixtures for a different task; they are not assistant-answer labels and are not imported.
+- `lifeflow-3-case-human-labels.json` — **human-labelled, 3 cases.** One case per behaviour (answer, abstain, clarify), each labelled by a different human tester (anonymised as Human tester 1–3) on 2026-11-08. Three cases demonstrate the workflow; they cannot establish accuracy.
+- `../public/evaluation/lifeflow-3-case-review.json` — the same 3 cases with the live run (LifeFlow AI, Groq `openai/gpt-oss-120b`, prompt `lifeflow-agent-v3.2`) and the human review (overall outcome only; the five dimensions were not scored). The AI Reliability panel loads it with **Load published review**. The separate SIP Discovery Engine contains 20 evidence-theme fixtures for a different task; they are not assistant-answer labels and are not imported.

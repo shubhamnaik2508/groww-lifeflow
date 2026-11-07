@@ -10,6 +10,7 @@ import type {BrowserModel} from './useBrowserModel';
 
 const DEFAULT_PROFILE:Profile={salary:30000,expenses:18000,sip:3000,sipDate:''};
 const API='/api/lifeflow/companion';
+const PUBLISHED='/evaluation/lifeflow-3-case-review.json';
 type Mode='groq'|'browser'|'rules';
 type Run={answer:CompanionAnswer;timestamp:string;mode:Mode;behaviour_match:boolean|null;failure_category:string};
 type Review={factual:string;grounding:string;context:string;safety:string;abstention:string;result:string;correction:string;failure_category:string;reviewer:string};
@@ -41,6 +42,10 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
    setDataset(f.dataset);setCases(f.cases);setRuns(restoredRuns);setReviews(restoredReviews);setSelected(f.cases[0].id);
    setMessage(f.dataset.kind==='human-labelled'?`${f.cases.length} human-labelled cases imported from “${f.dataset.name}”. Check the provenance before relying on them.`:`${f.cases.length} cases imported as ${kindLabel[f.dataset.kind]}. They are excluded from the genuine sample size.`);
   }catch(e){setMessage(e instanceof Error?e.message:'Could not read the file.')}
+ }
+ async function loadPublished(){
+  try{const r=await fetch(PUBLISHED,{cache:'no-store'});if(!r.ok)throw Error();await load(new File([await r.text()],'lifeflow-3-case-review.json',{type:'application/json'}))}
+  catch{setMessage('Could not load the published review.')}
  }
  async function answerCase(c:EvalCase,m:Mode):Promise<CompanionAnswer>{
   const profile=c.profile||DEFAULT_PROFILE;let scenario:Scenario|null=null;try{scenario=toScenario(c,profile)}catch{}
@@ -84,11 +89,12 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
   </div>
   <section className="card reliability">
    <div className="eyebrow">EVIDENCE, NOT ASSUMPTIONS</div><h3>Evaluate the live AI against labelled cases.</h3>
-   <p><b>Current status:</b> no genuinely human-labelled LifeFlow companion dataset exists yet, so the genuine sample size is 0 and no accuracy is reported. The Evidence Log in the separate SIP Discovery Engine holds 20 records, all marked synthetic, labelled with discovery themes rather than expected companion answers. It can be imported for context-relevance review but is shown as a simulation, not evidence.</p>
+   <p><b>Current status:</b> one human-labelled set of 3 cases (answer, abstain, clarify), each labelled by a different human tester, was run against the live AI on 8 November 2026 (IST). Behaviour matched on 3 of 3, and the human review recorded Pass, Correct abstention and Pass. Three cases show the workflow end to end; they are too few to establish accuracy. Use “Load published review” to inspect every output, check and verdict. The Evidence Log in the separate SIP Discovery Engine holds 20 records, all marked synthetic, labelled with discovery themes rather than expected companion answers. It can be imported for context-relevance review but is shown as a simulation, not evidence.</p>
    <p>Import a LifeFlow evaluation file (<code>fixtures/README.md</code>) or an Evidence Log export from <code>scripts/export-evidence-log.mjs</code>. Each case runs through the same pipeline and evaluation gate as the AI Companion. Cases may carry their own illustrative profile and scenario; otherwise ₹30,000 salary, ₹18,000 expenses and ₹3,000 SIP are used.</p>
    <div className="model-actions">
     <label className="outline file-label">Import JSON <input type="file" accept="application/json,.json" aria-label="Import evaluation JSON" onChange={e=>{const f=e.target.files?.[0];if(f)void load(f);e.currentTarget.value=''}}/></label>
     <label className="field eval-mode"><span>Run with</span><select value={mode} onChange={e=>setMode(e.target.value as Mode)} disabled={busy}><option value="groq">{modeLabel.groq}{aiAvailable?` · ${aiModel}`:' · not configured'}</option><option value="rules">{modeLabel.rules}</option><option value="browser">{modeLabel.browser}</option></select></label>
+    <button className="outline" disabled={busy} onClick={()=>void loadPublished()}>Load published review</button>
     <button className="primary" disabled={!cases.length||busy||!canRun} onClick={()=>void run()}>{busy?'Running…':'Run cases'}</button>
     {Object.keys(runs).length>0&&<button className="outline" onClick={download}>Export runs and reviews</button>}
    </div>
