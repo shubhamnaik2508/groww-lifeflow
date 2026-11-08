@@ -40,3 +40,11 @@
 .app[data-theme="dark-warm"] .tl-note{color:#9fe3c2}.app[data-theme="dark-warm"] .tl-note.warn{color:#f7d4b2}
 .app[data-theme="blue-oceanic"] .tl-labels b{color:#153448}
 @media (prefers-reduced-motion:reduce){.money-flow svg{transform:none}}
+/* "Will my SIP go through?" answer under the salary-delay timeline. */
+.debit-answer{margin:12px 0 4px;padding:12px 14px;border-radius:12px;border:1px solid #cfe3d6;background:#f4fbf6}
+.debit-answer b{display:block;font:700 14px Manrope,sans-serif;color:#1f3f31}
+.debit-answer p{margin:6px 0 4px;font-size:13px;line-height:1.55;color:#2c463a}
+.debit-answer small{font-size:11px;color:#5c6b63}
+.debit-answer.warn{background:#fff6ea;border-color:#f0d3a8}.debit-answer.warn b,.debit-answer.warn p{color:#6b4210}
+.debit-answer.info{background:#eef6fb;border-color:#cfe2ee}.debit-answer.info b,.debit-answer.info p{color:#1d3f52}
+.app[data-theme="dark-warm"] .debit-answer{background:#2f2620;border-color:#5b493c}.app[data-theme="dark-warm"] .debit-answer b,.app[data-theme="dark-warm"] .debit-answer p{color:#fff0e4}.app[data-theme="dark-warm"] .debit-answer small{color:#d2bdaa}

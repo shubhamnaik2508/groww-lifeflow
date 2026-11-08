@@ -124,12 +124,32 @@ export function ScenarioFlow({result,profile}:{result:Scenario;profile:Profile})
   const expected=day(result.inputs.salaryDate||''),delay=Number(result.inputs.delay),debit=day(result.inputs.debitDate||p.sipDate||'');
   if(!expected||!debit||!Number.isFinite(delay))return null;
   const arrival=new Date(expected.getTime()+delay*86400e3);
-  return <SalaryTimeline expected={expected} debit={debit} arrival={arrival}/>;
+  const bal=(result.inputs.balance||'').trim();const balance=bal&&Number.isFinite(Number(bal))?Number(bal):null;
+  return <SalaryTimeline expected={expected} debit={debit} arrival={arrival} sip={p.sip} balance={balance}/>;
  }
  return null;
 }
 
-function SalaryTimeline({expected,debit,arrival}:{expected:Date;debit:Date;arrival:Date}){
+/**
+ * Usability fix (sessions P1, P3, P4): people read the salary-delay result as a yes/no prediction and looked for their
+ * bank balance. This states the condition plainly and, when the optional balance is entered, compares it with the SIP.
+ * LifeFlow never sees a real account; the comparison uses only the figure the person typed.
+ */
+function DebitDayAnswer({debit,gapDays,sip,balance}:{debit:Date;gapDays:number;sip:number;balance:number|null}){
+ const when=short(debit);
+ let verdict:string,tone:'ok'|'warn'|'info';
+ if(gapDays<=0){verdict=`Your salary should arrive on or before ${when}, so the SIP is paid from it if it is credited on time.`;tone='ok'}
+ else if(balance===null){verdict=`It depends on your balance on ${when}: the SIP goes through only if at least ${money(sip)} is in your account that day, after any other debits. LifeFlow can’t see your bank balance. Enter “Available balance” above to check.`;tone='info'}
+ else if(balance>=sip){verdict=`The ${money(balance)} you entered covers the ${money(sip)} SIP on ${when}, as long as other debits don’t use it first.`;tone='ok'}
+ else{verdict=`The ${money(balance)} you entered is ${money(sip-balance)} short of the ${money(sip)} SIP on ${when}. Unless more money arrives by then, the debit may fail.`;tone='warn'}
+ return <div className={`debit-answer ${tone}`} role="note" aria-label="Will my SIP go through?">
+  <b>Will my SIP go through?</b>
+  <p>{verdict}</p>
+  <small>Based only on the figures you entered; confirm with your bank or fund house.</small>
+ </div>;
+}
+
+function SalaryTimeline({expected,debit,arrival,sip,balance}:{expected:Date;debit:Date;arrival:Date;sip:number;balance:number|null}){
  const root=useRef<HTMLDivElement>(null);
  const t=[expected,debit,arrival].map(d=>d.getTime());const lo=Math.min(...t),hi=Math.max(...t),span=Math.max(hi-lo,86400e3);
  const x=(d:Date)=>40+(d.getTime()-lo)/span*520;
@@ -155,5 +175,6 @@ function SalaryTimeline({expected,debit,arrival}:{expected:Date;debit:Date;arriv
   </svg>
   <div className="tl-labels"><span>Salary expected <b>{short(expected)}</b></span><span className="tl-debit-label">SIP debit <b>{short(debit)}</b></span><span className="tl-arrive-label">Salary arrives <b>{short(arrival)}</b></span></div>
   <p className={gapDays>0?'tl-note warn':'tl-note'}>{msg} Only the timing moves; the monthly total is unchanged.</p>
+  <DebitDayAnswer debit={debit} gapDays={gapDays} sip={sip} balance={balance}/>
  </div>;
 }

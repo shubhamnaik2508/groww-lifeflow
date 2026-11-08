@@ -27,12 +27,12 @@ export default function ProviderPicker({value,onChange,status,statusError}:{valu
     const state=statusError?'Status unknown':!s?'Checking…':s.available?'Ready':REASONS[s.unavailable_reason||'']||'Unavailable';
     return <label key={o.id} className={`provider-option${selected?' selected':''}${s&&!s.available?' unavailable':''}`}>
      <input type="radio" name="ai-provider" value={o.id} checked={selected} onChange={()=>onChange(o.id)}/>
-     <span className="provider-head"><b>{o.label}</b><span className={`provider-badge ${o.tone}`}>{o.badge}</span></span>
+     <span className="provider-head"><b>{o.label}</b><span className={`provider-badge ${o.tone}`} title={o.id==='gemini'?'LifeFlow’s default choice, not a quality claim':undefined}>{o.badge}</span></span>
      <small className="provider-desc">{o.description}</small>
      <span className="provider-state"><span className="provider-dot" aria-hidden="true"/>{state}{s?.available&&<> · <code>{s.model}</code></>}</span>
     </label>;
    })}
   </div>
-  <p className="provider-note">Recommended is LifeFlow’s default choice, not a claim that one model is better. Switch at any time; your question, figures and scenario stay as they are.</p>
+  <p className="provider-note"><b>Why “Recommended”?</b> Google Gemini is LifeFlow’s default choice for this demo; it is not a claim that one model is better. Both providers get the same figures and pass the same quality checks. Switch at any time; your question, figures and scenario stay as they are.</p>
  </fieldset>;
 }
