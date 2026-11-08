@@ -6,7 +6,7 @@ const create=vi.fn();
 vi.mock('groq-sdk',async importOriginal=>{const real=await importOriginal<typeof import('groq-sdk')>();class FakeGroq{chat={completions:{create}};constructor(public opts:unknown){}}return {...real,default:FakeGroq,Groq:FakeGroq}});
 const {GET,POST}=await import('../app/api/lifeflow/companion/route');
 
-const KEY='AIza_test_key_never_shown_0123456789';
+const KEY='test-gemini-key-never-shown-0123456789';
 const profile={salary:30000,expenses:18000,sip:3000,sipDate:'2026-12-05'};
 const expense={type:'expense',inputs:{amount:'5000',category:'Health',frequency:'one-time'},profile};
 const good={summary:'The one-time expense lowers your estimated remaining cash for this month.',points:[{text:'Before the expense, LifeFlow estimates {scenario_before} left after your recurring expenses and SIP.',supports:['scenario_before']},{text:'After the one-time expense of {one_time_expense}, the estimate becomes {scenario_after}.',supports:['one_time_expense','scenario_after']}],missing_information:[],next_steps:['Review the expenses you entered for this month.'],uncertainty:'This estimate may differ from your actual bank balance.',requires_abstention:false,abstention_reason:''};
