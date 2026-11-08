@@ -25,7 +25,7 @@ const mockAnswer={kind:'model',label:'AI-generated · passed every quality check
   if(status.providers.groq.available){console.log('  (server has a Groq key: checking a live answer instead)');await ask(page,'How does this expense affect my cash?');assert.match(await page.locator('.answer .simulation-badge').innerText(),/AI-generated|Rule-based/);}
   else{
    await page.locator('.ai-status').getByText(/not available on this server|paused/).waitFor();await ask(page,'How does this expense affect my cash?');
-   assert.match(await page.locator('.answer .simulation-badge').innerText(),/Rule-based guide · not AI/);assert.match(await page.locator('.answer-notice').innerText(),/no Groq API key/);
+   assert.match(await page.locator('.answer .simulation-badge').innerText(),/Rule-based guide · not AI/);assert.match(await page.locator('.answer-notice').innerText(),/no Groq API key|paused/);
    assert.match(await page.locator('.verification').innerText(),/No AI answer was produced/);
    const calc=await page.locator('.answer .fact-list').nth(1).innerText();assert.match(calc,/9,000\.00/);assert.match(calc,/4,000\.00/);
   }
