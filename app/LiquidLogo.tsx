@@ -56,7 +56,7 @@ const TINTS:Record<string,[string,string]>={lifeflow:['#7fd6ad','#08301f'],'blue
 
 export default function LiquidLogo({theme}:{theme:string}){
  const canvas=useRef<HTMLCanvasElement>(null);
- const [ready,setReady]=useState(false);
+ const [ready,setReady]=useState(false);const readyRef=useRef(false);
  const colours=useRef(TINTS[theme]??TINTS.lifeflow);colours.current=TINTS[theme]??TINTS.lifeflow;
  const redraw=useRef<()=>void>(()=>{});
  useEffect(()=>{redraw.current()},[theme]);
@@ -85,13 +85,15 @@ export default function LiquidLogo({theme}:{theme:string}){
    const tex=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);
    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
    gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);gl.uniform1i(u('u_image_texture'),0);
-   size();draw();setReady(true);last=performance.now();raf=requestAnimationFrame(loop);
+   readyRef.current=true;size();draw();setReady(true);last=performance.now();raf=requestAnimationFrame(loop);
   };
   img.src='/liquid-asterisk.png';
   const io=new IntersectionObserver(([e])=>{visible=e.isIntersecting});io.observe(el);
-  const onResize=()=>{size();draw()};window.addEventListener('resize',onResize);
+  // Resize whenever the canvas's own box changes, including when it goes from hidden (0×0, e.g. behind the landing
+  // page) to visible. Without this the canvas stays 1×1 and shows as a solid square.
+  const onResize=()=>{if(!readyRef.current)return;size();draw()};const ro=new ResizeObserver(onResize);ro.observe(el);
   const onMotion=()=>draw();reduce.addEventListener('change',onMotion);
-  return()=>{disposed=true;cancelAnimationFrame(raf);io.disconnect();window.removeEventListener('resize',onResize);reduce.removeEventListener('change',onMotion);gl.getExtension('WEBGL_lose_context')?.loseContext()};
+  return()=>{disposed=true;cancelAnimationFrame(raf);io.disconnect();ro.disconnect();reduce.removeEventListener('change',onMotion);gl.getExtension('WEBGL_lose_context')?.loseContext()};
  },[]);
 
  return <span className={`liquid-logo${ready?' is-ready':''}`} aria-hidden="true">
