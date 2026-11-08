@@ -28,8 +28,8 @@ HMAC digests.
 | Per visitor | 6 AI questions a minute, 30 an hour, 60 a day (IST day) |
 | Per visitor, at once | 1 question in flight |
 | All visitors, at once | 6 questions in flight |
-| All visitors, per day | Gemini 300, Groq 500 (backstops) |
-| **Gemini spend, all visitors** | **$0.15 a day**, estimated from Gemini's reported token usage. Each call reserves its worst case ($0.0087) before it runs and settles to the actual cost afterwards. |
+| All visitors, per day | Gemini 400, Groq 500 (backstops) |
+| **Gemini spend, all visitors** | **₹100 a day** including 18% GST (about $0.96 at ₹88/$), estimated from Gemini's reported token usage. Each call reserves its worst case ($0.0087) before it runs and settles to the actual cost afterwards. Change it with `GEMINI_DAILY_BUDGET_INR` in Vercel (₹1–₹1,000), then redeploy. |
 | Request size | 10 KB body, 600-character question |
 | Output | Gemini 2,048 tokens including thinking (`minimal`); Groq 4,096 |
 | Origin | Cross-site POSTs are rejected |
@@ -40,13 +40,12 @@ Safety-rule refusals and clarifying questions never reach a model, so they do no
 
 Measured prompts are about 1,800–2,400 input tokens; answers are about 500–1,000 output tokens.
 
-- **Typical Gemini answer:** about $0.003 (≈ ₹0.27). It's up to twice that when the quality gate asks for one retry.
-- **Daily ceiling:** $0.15, about 45 typical Gemini answers a day across all visitors.
-- **Monthly worst case:** about $4.50, or **≈ ₹470 including 18% GST** at ₹88/$. That's below the ₹630 Google project cap.
-
-Caveats:
-- The ceiling is an estimate based on Google's published prices. It is not a guarantee.
-- Google's own spend cap is not an absolute guarantee against overages either.
+- **Typical Gemini answer:** about $0.003 (≈ ₹0.30 with GST). It's up to twice that when the quality gate asks for one retry.
+- **Daily ceiling:** ₹100, about 300 typical Gemini answers a day across all visitors. Spend happens only when people ask questions.
+- **Monthly ceiling at full use every day:** about ₹3,000. That is **above the ₹630 Google project cap**, which full use would reach in about 6–7 days.
+  - Once Google's cap is reached, Google refuses further Gemini requests. Visitors then see the labelled rule-based guide and the "Ask Groq instead" button.
+  - Google's cap is not an absolute guarantee against overages.
+  - To keep the monthly maximum under ₹630, set `GEMINI_DAILY_BUDGET_INR` to 20 or less.
 - Watch the Google Cloud billing page while the demo is public.
 
 ## Kill switches

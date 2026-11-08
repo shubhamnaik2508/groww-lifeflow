@@ -1,4 +1,4 @@
-// AI Reliability: the status names the published human-labelled review, and "Load published review" shows its runs and human verdicts.
+// AI Reliability: the published human-labelled review loads with the page and shows its runs and human verdicts; an import replaces it.
 const {chromium}=require('playwright-core');
 const assert=require('node:assert/strict');
 const edge=process.env.LIFEFLOW_BROWSER||'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
@@ -13,9 +13,7 @@ let passed=0;const ok=m=>{passed++;console.log('PASS',m)};
   const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/#ai-reliability');
   await page.getByText(/one human-labelled set of 6 cases/).waitFor();
-  assert(await page.getByText(/No labelled examples imported/).isVisible(),'empty until loaded');ok('status describes the published review; nothing is loaded by default');
-  await page.getByRole('button',{name:'Load published review'}).click();
-  await page.getByText(/6 human-labelled cases imported/).waitFor();
+  await page.getByText(/Showing the published human-labelled review \(loaded automatically\)/).waitFor();ok('the published review loads with the page, without a click');
   const metrics=(await page.locator('.metrics').innerText()).replace(/\s+/g,' ');
   for(const t of ['GENUINE LABELLED CASES 6','BEHAVIOUR MATCH 4/6','6 reviewed','Pass: 2','Correct abstention: 2','Partial pass: 1','Fail: 1'])assert(metrics.includes(t),`metrics show "${t}" (${metrics})`);
   ok('metrics: 6 genuine cases, 4/6 behaviour match, 6 reviewed (Pass 2, Correct abstention 2, Partial pass 1, Fail 1)');
@@ -27,6 +25,9 @@ let passed=0;const ok=m=>{passed++;console.log('PASS',m)};
   }
   ok('each case shows its recorded output, behaviour match and human verdict');
   assert(!(await page.content()).match(/Shubham|Naik/i));ok('no personal names on the page');
+  await page.getByLabel('Import evaluation JSON').setInputFiles(require('node:path').resolve(__dirname,'../fixtures/lifeflow-engineering-fixture.json'));await page.getByText(/Engineering fixture · not evaluation evidence/).first().waitFor();
+  assert.match((await page.locator('.metrics').innerText()).replace(/\s+/g,' '),/GENUINE LABELLED CASES 0/);
+  await page.getByRole('button',{name:'Reload published review'}).click();await page.getByText(/6 human-labelled cases imported/).waitFor();ok('an import replaces it; Reload published review brings it back');
   assert.deepEqual(errors,[]);ok('no page errors');
   console.log(`RESULT ${passed} passed`);
  }catch(e){console.error('FAIL',e.message);process.exitCode=1}finally{await browser.close()}

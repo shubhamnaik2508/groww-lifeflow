@@ -7,7 +7,7 @@ import {GEMINI_TIMEOUT_MS,GEMINI_UNAVAILABLE_MESSAGES,geminiConfig,geminiCostMic
 import {groqConfig,groqGenerate,groqModelInfo,GROQ_TIMEOUT_MS,UNAVAILABLE_MESSAGES} from '../../../../lib/ai/groq';
 import {ProviderError,runCompanion,type Generate,type ModelInfo} from '../../../../lib/ai/pipeline';
 import {PROMPT_VERSION} from '../../../../lib/ai/prompt';
-import {admit,geminiSpend,LIMITS,protectionMode,SpendRefused,type Provider} from '../../../../lib/ai/public-guard';
+import {admit,geminiDailyBudgetMicros,geminiSpend,LIMITS,protectionMode,SpendRefused,type Provider} from '../../../../lib/ai/public-guard';
 import {clientIdentity,readBoundedBody,RequestTooLarge} from '../../../../lib/request-security';
 
 export const maxDuration=60;
@@ -82,7 +82,7 @@ export async function POST(req:Request){
  try{
   let generate:Generate,model:ModelInfo,timeout:number;
   if(provider==='gemini'&&gemini.configured){
-   const spend=geminiSpend(admission.store,admission.day,geminiReserveMicros(gemini.model),u=>geminiCostMicros(gemini.model,u));
+   const spend=geminiSpend(admission.store,admission.day,geminiReserveMicros(gemini.model),u=>geminiCostMicros(gemini.model,u),geminiDailyBudgetMicros());
    const budget={
     reserve:async()=>{try{await spend.reserve()}catch(e){throw e instanceof SpendRefused&&e.reason==='budget'?new ProviderError('demo_budget_exhausted','Today’s spending limit for Google Gemini on this demo is reached, so the rule-based guide is shown. It resets at midnight IST. You can try Groq.'):new ProviderError('protection_unavailable','The AI service is temporarily unavailable on this server, so the rule-based guide is shown. It is not an AI response.')}},
     settle:spend.settle,

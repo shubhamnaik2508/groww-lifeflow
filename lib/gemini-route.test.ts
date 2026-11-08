@@ -1,5 +1,5 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
-import {MemoryStore,KILL_SWITCH_KEY,LIMITS,istDay} from './ai/public-guard';
+import {MemoryStore,KILL_SWITCH_KEY,LIMITS,istDay,geminiDailyBudgetMicros} from './ai/public-guard';
 import {geminiCostMicros,geminiReserveMicros} from './ai/gemini';
 
 const create=vi.fn();
@@ -67,6 +67,16 @@ describe('Gemini is the default provider',()=>{
 });
 
 describe('Gemini spend ceiling',()=>{
+ it('defaults to ₹100 a day (GST included) and can be set with GEMINI_DAILY_BUDGET_INR',()=>{
+  expect(geminiDailyBudgetMicros({})).toBe(Math.floor(100/1.18/88*1e6));expect(LIMITS.geminiDailyBudgetMicros).toBe(geminiDailyBudgetMicros({}));
+  expect(geminiDailyBudgetMicros({GEMINI_DAILY_BUDGET_INR:'50'})).toBe(Math.floor(50/1.18/88*1e6));
+  for(const bad of ['0','-5','5000','abc',''])expect(geminiDailyBudgetMicros({GEMINI_DAILY_BUDGET_INR:bad})).toBe(geminiDailyBudgetMicros({}));
+ });
+ it('applies the ceiling set in the environment',async()=>{
+  vi.stubEnv('GEMINI_DAILY_BUDGET_INR','10');
+  await store.pipeline([['SET',spendKey(),String(geminiDailyBudgetMicros({GEMINI_DAILY_BUDGET_INR:'10'})-geminiReserveMicros('gemini-3.5-flash-lite')+1)]]);
+  expect((await (await post(question)).json()).fallback_reason).toBe('demo_budget_exhausted');expect(geminiCalls).toHaveLength(0);
+ });
  it('records the actual cost of each call from token usage',async()=>{
   await post(question);
   expect(Number((await store.pipeline([['GET',spendKey()]]))[0])).toBe(geminiCostMicros('gemini-3.5-flash-lite',{input:3000,output:800}));

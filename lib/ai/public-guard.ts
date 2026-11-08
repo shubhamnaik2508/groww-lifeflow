@@ -12,15 +12,26 @@ export const LIMITS={
  visitorPerHour:30,
  visitorPerDay:60,
  /** Requests per provider per day across all visitors (backstop; Gemini spend is capped separately). */
- globalPerDay:{gemini:300,groq:500} as Record<Provider,number>,
+ globalPerDay:{gemini:400,groq:500} as Record<Provider,number>,
  /** AI requests running at the same time across all visitors. */
  globalConcurrent:6,
  /** Seconds a visitor's in-flight lock and a global slot live if a request never releases them. */
  inflightTtlMs:45000,
- /** Estimated Gemini spend per day across all visitors, in micro-USD: $0.15/day ≈ $4.50/month ≈ ₹470 incl. 18% GST at ₹88/$ (under the ₹630 Google cap). */
- geminiDailyBudgetMicros:150000,
+ /** Estimated Gemini spend per day across all visitors, in micro-USD (from GEMINI_DAILY_BUDGET_INR, default ₹100). */
+ geminiDailyBudgetMicros:0,
 };
 export const KILL_SWITCH_KEY='lifeflow:ai:disabled';
+
+/** Rupee-to-dollar rate and Indian GST used to turn a rupee budget into the dollar cost Gemini reports. Conservative. */
+export const INR_PER_USD=88,GST=0.18;
+export const DEFAULT_GEMINI_DAILY_BUDGET_INR=100;
+/** Daily Gemini spend ceiling in micro-USD. Set GEMINI_DAILY_BUDGET_INR in Vercel (₹1–₹1,000, GST included) to change it. */
+export function geminiDailyBudgetMicros(env:Record<string,string|undefined>=process.env){
+ const raw=Number(env.GEMINI_DAILY_BUDGET_INR);
+ const inr=Number.isFinite(raw)&&raw>=1&&raw<=1000?raw:DEFAULT_GEMINI_DAILY_BUDGET_INR;
+ return Math.floor(inr/(1+GST)/INR_PER_USD*1e6);
+}
+LIMITS.geminiDailyBudgetMicros=geminiDailyBudgetMicros({});
 
 type Cmd=(string|number)[];
 export interface RedisLike{pipeline(cmds:Cmd[]):Promise<unknown[]>}

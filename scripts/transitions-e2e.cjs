@@ -70,7 +70,7 @@ const nav=(page,name)=>page.locator('.sidebar').getByRole('button',{name:new Reg
    await page.waitForTimeout(600);assert(atRest(await look(page,'.answer')),'answer at rest');
   });
   await check('loaded evaluation cases slide in on AI Reliability',async()=>{
-   await nav(page,'AI Reliability');await page.getByRole('button',{name:'Load published review'}).click();
+   await nav(page,'AI Reliability');await page.getByRole('button',{name:'Reload published review'}).click();
    const sec=page.locator('section.reliability').nth(1);await sec.waitFor();assert.equal(await sec.getAttribute('data-open'),'true');
    await page.waitForTimeout(600);assert(atRest(await look(page,'section.reliability.t-panel-slide')),'cases card at rest');
   });
