@@ -1,5 +1,6 @@
 'use client';
-import {useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
+import {openPanel} from './motion';
 import {calculateScenario,type Profile,type Scenario} from '../lib/calc';
 import {runCompanion,type CompanionAnswer} from '../lib/ai/pipeline';
 import {PROMPT_VERSION} from '../lib/ai/prompt';
@@ -28,6 +29,8 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
  const [dataset,setDataset]=useState<Dataset|null>(null),[cases,setCases]=useState<EvalCase[]>([]),[runs,setRuns]=useState<Record<string,Run>>({}),[reviews,setReviews]=useState<Record<string,Review>>({});
  const [message,setMessage]=useState(''),[busy,setBusy]=useState(false),[progress,setProgress]=useState(''),[selected,setSelected]=useState('');
  const [mode,setMode]=useState<Mode>('groq');
+ const casesPanel=useRef<HTMLElement>(null);
+ useEffect(()=>{openPanel(casesPanel.current)},[cases.length]);
  async function load(file:File){
   try{
    if(file.size>2000000)throw Error('File exceeds 2 MB.');
@@ -100,13 +103,13 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
    </div>
    {mode==='groq'&&!aiAvailable&&<p className="answer-notice">The AI service is not configured on this server, so every case will show the labelled fallback. That run tests failure handling, not the AI.</p>}
    {mode==='browser'&&model.status!=='ready'&&<details className="eval-model" open><summary>Load the experimental on-device model first</summary><ModelPanel model={model} compact/></details>}
-   {progress&&<p role="status">{progress}</p>}
+   {progress&&<p role="status"><span className="t-shimmer" data-text={progress}>{progress}</span></p>}
    <p role="status">{message||'No labelled examples imported.'}</p>
    {dataset&&<p className={dataset.kind==='human-labelled'?'dataset-kind genuine':'dataset-kind fixture'}><b>{kindLabel[dataset.kind]}</b> · {dataset.name} · created {dataset.created}{dataset.labelled_by?` · labelled by ${dataset.labelled_by}`:''}{dataset.description?` · ${dataset.description}`:''}</p>}
    <div className="dimensions">{dimensions.map(([,l])=><span key={l}>{l}</span>)}</div>
    <p className="muted">Automated results show which checks ran and whether the behaviour (answer, abstain, clarify) matched the label; they do not establish correctness. A small sample cannot establish accuracy beyond the cases reviewed. Data stays in this page until you export it.</p>
   </section>
-  {cases.length>0&&<section className="card reliability">
+  {cases.length>0&&<section ref={casesPanel} className="card reliability t-panel-slide" data-open="false">
    <label className="field"><span>Inspect case</span><select value={selected} onChange={e=>setSelected(e.target.value)}>{cases.map(c=><option key={c.id} value={c.id}>{c.id} · {c.question.slice(0,65)}</option>)}</select></label>
    {current&&<><h3>{current.question}</h3>
     <p><b>Expected ({dataset?.kind==='human-labelled'?'human label':'not a human label'}{current.label_scope==='theme_only'?', theme only':''}):</b> {current.expected}{current.expected_behaviour?` · expected behaviour: ${current.expected_behaviour}`:''}</p>
