@@ -33,6 +33,17 @@ export function verificationLines(a:CompanionAnswer):Line[]{
 }
 const icon={ok:'✓',fail:'✕',info:'ℹ',skip:'–'};
 
+/** Usability fix (sessions P2, P5): people asked "what exactly was checked?". Plain-language meaning of each check. */
+function ChecksExplained(){
+ return <details className="checks-explained"><summary>What do these checks mean?</summary><ul>
+  <li><b>Figures calculated by LifeFlow:</b> every ₹ amount comes from LifeFlow’s calculator, not the AI.</li>
+  <li><b>Calculation consistency:</b> each number the AI writes is compared with LifeFlow’s; any mismatch hides the answer.</li>
+  <li><b>Source support:</b> each sentence must point to your figures or an approved SEBI or AMFI excerpt, listed under Sources.</li>
+  <li><b>Safety screening:</b> blocks advice to buy, sell, stop or switch, promises of returns, and bank-specific rules.</li>
+  <li><b>Uncertainty:</b> the answer must say what LifeFlow can’t know, such as your real bank balance.</li>
+ </ul><p>If any check fails, the AI’s text is not shown and the labelled rule-based guide appears instead. These are automatic rule checks: they block known problems, but they can’t prove an answer is right.</p></details>;
+}
+
 export default function AnswerView({answer,disclaimer}:{answer:CompanionAnswer;disclaimer:string}){
  const List=({title,items}:{title:string;items:string[]})=>items.length?<div className="answer-block"><b>{title}</b><ul>{items.map(x=><li key={x}>{x}</li>)}</ul></div>:null;
  const root=useRef<HTMLDivElement>(null);
@@ -40,7 +51,7 @@ export default function AnswerView({answer,disclaimer}:{answer:CompanionAnswer;d
  return <div ref={root} className="answer t-panel-slide" data-open="false" aria-live="polite">
   <div className="eyebrow">RESPONSE · {answer.scenario.toUpperCase()}</div>
   <div className={`simulation-badge kind-${answer.kind}`}>{answer.label}</div>
-  <div className="verification" aria-label="Verification summary"><b>Verification</b><ul>{verificationLines(answer).map(l=><li key={l.text} className={`v-${l.state}`}><span aria-hidden="true">{icon[l.state]}</span> {l.text}</li>)}</ul></div>
+  <div className="verification" aria-label="Verification summary"><b>Verification</b><ul>{verificationLines(answer).map(l=><li key={l.text} className={`v-${l.state}`}><span aria-hidden="true">{icon[l.state]}</span> {l.text}</li>)}</ul><ChecksExplained/></div>
   {answer.notice&&<p className="answer-notice" role="status">{answer.notice}</p>}
   <h3>{answer.summary}</h3>
   {answer.claims.length?<ul className="claims">{answer.claims.map((c,i)=><li key={i}><p>{c.text}</p><small>Based on: {c.supports.map(s=>s.label).join(' · ')}</small></li>)}</ul>:<p>{answer.explanation}</p>}

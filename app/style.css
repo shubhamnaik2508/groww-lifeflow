@@ -86,3 +86,12 @@ footer{font-size:12px!important}
 .timeline small,.side-label{font-size:11px!important}
 .app[data-theme="blue-oceanic"] .side-label{color:#9cc0cc}
 .app[data-theme="blue-oceanic"] .side-note p{color:#a9c6d0}
+
+/* Plain-language explanation of the AI checks (usability sessions). */
+.checks-explained{margin-top:10px;font-size:12px;line-height:1.55}
+.checks-explained summary{cursor:pointer;font-weight:700;color:#20694c}
+.checks-explained ul{margin:8px 0;padding-left:18px}
+.checks-explained li{margin:4px 0}
+.checks-explained p{margin:6px 0 0;color:#5c6b63}
+.app[data-theme="dark-warm"] .checks-explained summary{color:#f0b77e}.app[data-theme="dark-warm"] .checks-explained p{color:#d2bdaa}
+.app[data-theme="blue-oceanic"] .checks-explained summary{color:#10687a}

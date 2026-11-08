@@ -27,7 +27,7 @@ const radio=(page,name)=>page.getByRole('radio',{name});
    const cards=page.locator('.provider-option');
    assert.match(await cards.nth(0).innerText(),/Google Gemini[\s\S]*Recommended[\s\S]*Smart financial explanations and personalised learning assistance/i);
    assert.match(await cards.nth(1).innerText(),/Groq[\s\S]*Alternative[\s\S]*Fast AI responses powered by the existing Groq model/i);
-   assert.match(await page.locator('.provider-note').innerText(),/default choice, not a claim that one model is better/);
+   assert.match(await page.locator('.provider-note').innerText(),/Why “Recommended”\?[\s\S]*default choice[\s\S]*not a claim that one model is better/);
    assert.match(await page.locator('.ai-status').innerText(),/Answering with Google Gemini/);
    await ctx.close();
   });
