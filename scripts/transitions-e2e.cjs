@@ -40,6 +40,9 @@ const nav=(page,name)=>page.locator('.sidebar').getByRole('button',{name:new Reg
    await page.waitForTimeout(400);assert(atRest(await look(page,'.illustrative-pop')),'open popover at rest');
    await page.keyboard.press('Escape');
    assert.match(await page.locator('.illustrative-pop').getAttribute('class'),/is-closing/);
+   // The close plays for --dropdown-close-dur (150 ms), even when the minified CSS writes it as .15s.
+   await page.waitForTimeout(90);
+   assert.match(await page.locator('.illustrative-pop').getAttribute('class',{timeout:500}),/is-closing/,'still closing after 90 ms');
    await page.locator('.illustrative-pop').waitFor({state:'detached',timeout:1000});
   });
   await check('scenario error shakes, and shakes again on the next failed try',async()=>{
