@@ -43,8 +43,8 @@ const EXPECT=[['Your salary arrives.',/₹35,000/],['It splits into what matters
    await page.locator('.app').waitFor({state:'visible'});assert.equal(await page.locator('.landing').count(),0);
    await page.waitForTimeout(1500);assert.equal(norm(await page.locator('.intro h1').innerText()),'Life happens. Let’s plan for it.');
    // Regression: the Home logo canvas was created while hidden behind the landing and stayed 1×1 (a solid square).
-   const logo=await page.locator('.hero-art .liquid-canvas').evaluate(c=>({w:c.width,h:c.height,css:Math.round(c.getBoundingClientRect().width),ready:c.parentElement.classList.contains('is-ready')}));
-   if(logo.ready)assert(logo.w>=logo.css*0.9&&logo.w>40,`Home logo canvas is drawn at its real size (${JSON.stringify(logo)})`);
+   const logo=await page.locator('.hero-art .liquid-canvas').evaluate(c=>({w:c.width,css:c.offsetWidth,dpr:Math.min(2,devicePixelRatio||1),ready:c.parentElement.classList.contains('is-ready')}));
+   if(logo.ready)assert(Math.abs(logo.w-Math.round(logo.css*logo.dpr))<=1&&logo.w>40,`Home logo canvas is drawn at its real size (${JSON.stringify(logo)})`);
    assert(await page.getByRole('heading',{name:/An educational companion/}).isVisible(),'onboarding card still shown to a new visitor');
    await page.reload();await page.locator('.landing').waitFor({state:'visible'});assert.equal(await page.locator('.app').isVisible(),false,'landing again on the next visit');
    await page.getByRole('button',{name:/Open LifeFlow/}).first().click();await page.locator('.app').waitFor({state:'visible'});

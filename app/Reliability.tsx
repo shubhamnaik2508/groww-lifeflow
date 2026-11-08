@@ -122,7 +122,8 @@ export default function Reliability({model,providers}:{model:BrowserModel;provid
    <p className="muted">Automated results show which checks ran and whether the behaviour (answer, abstain, clarify) matched the label; they do not establish correctness. A small sample cannot establish accuracy beyond the cases reviewed. Data stays in this page until you export it.</p>
   </section>
   {cases.length>0&&<section ref={casesPanel} className="card reliability t-panel-slide" data-open="false">
-   <label className="field"><span>Inspect case</span><select value={selected} onChange={e=>setSelected(e.target.value)}>{cases.map(c=><option key={c.id} value={c.id}>{c.id} · {c.question.slice(0,65)}</option>)}</select></label>
+   <p className="muted inspect-hint">Pick one test case to see everything about it: the question, the human label, the AI’s recorded answer and checks, and the reviewer’s verdict.</p>
+   <label className="field"><span>Test case to inspect</span><select value={selected} onChange={e=>setSelected(e.target.value)}>{cases.map(c=><option key={c.id} value={c.id}>{c.id} · {c.question.slice(0,65)}</option>)}</select></label>
    {current&&<><h3>{current.question}</h3>
     <p><b>Expected ({dataset?.kind==='human-labelled'?'human label':'not a human label'}{current.label_scope==='theme_only'?', theme only':''}):</b> {current.expected}{current.expected_behaviour?` · expected behaviour: ${current.expected_behaviour}`:''}</p>
     <p><b>Rationale:</b> {current.rationale}</p>
