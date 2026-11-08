@@ -205,3 +205,7 @@
 .t-shimmer { --shimmer-base: currentColor; }
 .t-shimmer::before { content: attr(data-text); content: attr(data-text) / ""; }
 .app[data-theme="dark-warm"] .t-shimmer { --shimmer-highlight: #fff8ef; }
+
+/* GSAP word-by-word titles (usePageMotion): depth for the slight 3D tilt of each word. */
+.page-heading h1,.intro h1{perspective:700px}
+.title-word{will-change:transform,opacity}

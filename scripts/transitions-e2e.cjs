@@ -23,14 +23,14 @@ const nav=(page,name)=>page.locator('.sidebar').getByRole('button',{name:new Reg
  const browser=await chromium.launch({executablePath:edge,headless:true});
  try{
   const {ctx,page,errors}=await setup(browser);
-  await check('page headings: eyebrow, title and intro rise in with a stagger and settle fully visible, on every page',async()=>{
+  await check('page headings: eyebrow and intro rise in with a stagger and settle fully visible, on every page (titles: gsap-motion-e2e)',async()=>{
    for(const name of ['Scenario Lab','Market Pulse','AI Companion','My Journey','AI Reliability']){
     await nav(page,name);
-    const early=await look(page,'.page-heading .t-stagger-line--2');
-    assert(early&&early.opacity<1,`${name}: title starts hidden (opacity ${early?.opacity})`);
+    const early=await look(page,'.page-heading .t-stagger-line--3');
+    assert(early&&early.opacity<1,`${name}: intro starts hidden (opacity ${early?.opacity})`);
     await page.waitForTimeout(800);
-    const lines=await page.locator('.page-heading .t-stagger-line').count();assert.equal(lines,3,`${name}: three lines`);
-    for(const n of [1,2,3])assert(atRest(await look(page,`.page-heading .t-stagger-line--${n}`)),`${name}: line ${n} at rest`);
+    const lines=await page.locator('.page-heading .t-stagger-line').count();assert.equal(lines,2,`${name}: eyebrow and intro`);
+    for(const n of [1,3])assert(atRest(await look(page,`.page-heading .t-stagger-line--${n}`)),`${name}: line ${n} at rest`);
    }
   });
   await check('Illustrative mode: grows from the pill (.is-open), shrinks on close (.is-closing), then leaves',async()=>{
@@ -89,7 +89,7 @@ const nav=(page,name)=>page.locator('.sidebar').getByRole('button',{name:new Reg
 
   await check('reduced motion: headings, popover and results appear instantly at rest',async()=>{
    const {ctx:c,page:p}=await setup(browser,{reducedMotion:'reduce'});
-   await nav(p,'Scenario Lab');assert(atRest(await look(p,'.page-heading .t-stagger-line--2')),'heading instantly at rest');
+   await nav(p,'Scenario Lab');assert(atRest(await look(p,'.page-heading .t-stagger-line--3')),'heading instantly at rest');
    await p.getByRole('button',{name:'Illustrative mode'}).click();await p.locator('.illustrative-pop.is-open').waitFor();assert(atRest(await look(p,'.illustrative-pop')),'popover instantly at rest');
    await p.keyboard.press('Escape');
    await p.getByLabel('Expense amount (₹)').fill('5000');await p.getByLabel('Expense category').fill('Health');await p.getByRole('button',{name:'See the impact'}).click();

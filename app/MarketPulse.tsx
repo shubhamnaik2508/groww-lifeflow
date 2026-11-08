@@ -25,7 +25,7 @@ export default function MarketPulse(){
  useEffect(()=>{let live=true;fetch(API).then(r=>r.json()).then((x:Pulse)=>{if(live)setPulse(x)}).catch(()=>{if(live)setPulse({status:'error',message:'Market Pulse data could not be loaded. The SIP Decision Explorer below still works.'})});return()=>{live=false}},[]);
  const snap=pulse?.status==='ok'?pulse.snapshot:null;
  return <div className="mp">
-  <div className="page-heading mp-heading t-stagger"><div className="eyebrow t-stagger-line t-stagger-line--1"><span/>MARKET PULSE</div><h1 className="t-stagger-line t-stagger-line--2">Understand the market. <em>Evaluate your options.</em></h1><p className="t-stagger-line t-stagger-line--3">Stay informed with end-of-day market context, explained with sources, next to a neutral comparison of your SIP choices.</p></div>
+  <div className="page-heading mp-heading t-stagger"><div className="eyebrow t-stagger-line t-stagger-line--1"><span/>MARKET PULSE</div><h1>Understand the market. <em>Evaluate your options.</em></h1><p className="t-stagger-line t-stagger-line--3">Stay informed with end-of-day market context, explained with sources, next to a neutral comparison of your SIP choices.</p></div>
   <Hero pulse={pulse}/>
   <Explorer snap={snap}/>
   <History snap={snap}/>
