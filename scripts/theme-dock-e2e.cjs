@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 async function main(){
  const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
  const page=await browser.newPage({viewport:{width:1440,height:900}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(process.env.LIFEFLOW_TEST_URL||'http://localhost:3000');
+ await page.goto(String(process.env.LIFEFLOW_TEST_URL||'http://localhost:3000').split('#')[0].replace(/[/]+$/,'')+'/?app');
  assert.equal(await page.locator('.app').getAttribute('data-theme'),'blue-oceanic','new visitors should see Blue Oceanic');assert.equal(await page.getByLabel('Choose theme').inputValue(),'blue-oceanic');
  const toggle=page.getByRole('button',{name:'Collapse navigation dock'});await toggle.click();
  assert.equal(await page.getByRole('button',{name:'Expand navigation dock'}).getAttribute('aria-expanded'),'false');

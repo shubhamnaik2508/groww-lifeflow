@@ -16,7 +16,7 @@ async function main(){
  const page=ctx.pages()[0]||await ctx.newPage();page.setDefaultTimeout(20000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const report={started:new Date().toISOString(),base,size,browser:edge,questions:[],errors};
- await page.goto(base);
+ await page.goto(base+'/?app');
  report.gpu=await page.evaluate(async()=>{const a=await navigator.gpu?.requestAdapter({powerPreference:'high-performance'});return a?{vendor:a.info?.vendor,architecture:a.info?.architecture,shaderF16:a.features.has('shader-f16')}:null});
  console.log('GPU',JSON.stringify(report.gpu));assert(report.gpu,'No WebGPU adapter: the real model test cannot run here.');
  await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');await page.getByLabel('Upcoming SIP date').fill('2026-12-05');

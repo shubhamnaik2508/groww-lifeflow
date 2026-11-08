@@ -34,7 +34,7 @@ let passed=0;const ok=m=>{passed++;console.log('PASS',m)};
   const m=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true});
   await m.addInitScript(()=>{try{localStorage.setItem('lifeflow-onboarded','yes')}catch{}});
   const p=await m.newPage();p.on('pageerror',e=>errors.push(e.message));
-  await p.goto(base+'/');const pill=p.getByRole('button',{name:'Illustrative mode'});await pill.tap();
+  await p.goto(base+'/?app');const pill=p.getByRole('button',{name:'Illustrative mode'});await pill.tap();
   const box=await p.locator('.illustrative-pop').boundingBox();assert(box&&box.x>=0&&box.x+box.width<=360,`popover fits on a 360 px screen (${JSON.stringify(box)})`);
   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0,'no sideways scroll');
   ok('phone: tap opens it and it fits the screen');await m.close();

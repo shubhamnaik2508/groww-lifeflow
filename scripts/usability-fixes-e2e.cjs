@@ -12,7 +12,7 @@ const norm=s=>s.replace(/\s+/g,' ').trim();
  try{
   const ctx=await browser.newContext({viewport:{width:1366,height:900}});await ctx.addInitScript(()=>{try{localStorage.setItem('lifeflow-onboarded','yes')}catch{}});
   const page=await ctx.newPage();page.setDefaultTimeout(10000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(base+'/');
+  await page.goto(base+'/?app');
   await page.getByLabel('Monthly take-home salary (₹)').fill('35000');await page.getByLabel('Recurring expenses (₹)').fill('21000');await page.getByLabel('Monthly SIP commitment (₹)').fill('4000');
   await page.locator('.sidebar').getByRole('button',{name:/Scenario Lab/}).click();
   const delay=async balance=>{await page.getByRole('button',{name:/Salary delayed/}).click();await page.getByLabel('Expected salary date').fill('2026-12-01');await page.getByLabel('Expected delay (days)').fill('7');await page.getByLabel('Available balance (optional)').fill(balance);await page.getByLabel('SIP debit date').fill('2026-12-05');await page.getByRole('button',{name:'See the impact'}).click();return norm(await page.getByRole('note',{name:'Will my SIP go through?'}).innerText())};

@@ -10,3 +10,5 @@
 .app[data-theme="blue-oceanic"] .illustrative-pop p{color:#2c4a59}
 .app[data-theme="dark-warm"] .illustrative-pop{background:#2b231e;border-color:#57463b;color:#f2e8dc}
 .app[data-theme="dark-warm"] .illustrative-pop p{color:#e3cfbf}
+/* Phones: the top bar is crowded (theme, this pill, Watch the story), so the explanation anchors to the screen edges. */
+@media(max-width:650px){.illustrative-pop{position:fixed;left:16px;right:16px;top:64px;width:auto}}

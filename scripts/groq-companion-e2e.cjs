@@ -8,7 +8,7 @@ const base=process.env.LIFEFLOW_TEST_URL||'http://localhost:3000';
 let passed=0;
 async function check(name,fn){try{await fn();passed++;console.log(`PASS ${name}`)}catch(e){console.error(`FAIL ${name}: ${e.message.split('\n')[0]}`);process.exitCode=1}}
 async function setup(page){
- await page.goto(base);await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');await page.getByLabel('Upcoming SIP date').fill('2026-12-05');
+ await page.goto(base+'/?app');await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');await page.getByLabel('Upcoming SIP date').fill('2026-12-05');
  await page.getByRole('button',{name:/Explore a Life Event/}).click();await page.getByLabel('Expense amount (₹)').fill('5000');await page.getByLabel('Expense category').fill('Health');await page.getByRole('button',{name:'See the impact'}).click();
  await page.getByRole('button',{name:/Discuss with LifeFlow/}).click();
 }
@@ -53,7 +53,7 @@ const mockAnswer={kind:'model',label:'AI-generated · passed every quality check
   await page.close();
  });
  await check('onboarding disclaimer is shown until acknowledged and stays acknowledged',async()=>{
-  const ctx=await browser.newContext();const page=await ctx.newPage();await page.goto(base);
+  const ctx=await browser.newContext();const page=await ctx.newPage();await page.goto(base+'/?app');
   const banner=page.getByRole('region',{name:/An educational companion, not an adviser/});await banner.waitFor();assert.match(await banner.innerText(),/does not provide investment advice, recommend mutual funds or securities, guarantee returns/);
   await page.getByRole('button',{name:/I understand/}).click();await page.reload();await page.getByRole('heading',{name:/Life happens/}).waitFor();assert.equal(await banner.count(),0);assert(await page.locator('.disclaimer').first().isVisible());await ctx.close();
  });
