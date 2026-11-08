@@ -3,6 +3,8 @@ const {chromium}=require('playwright-core');
 const assert=require('node:assert/strict');
 const edge=process.env.LIFEFLOW_BROWSER||'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const base=(process.env.LIFEFLOW_TEST_URL||'http://localhost:3000').replace(/\/$/,'');
+// Closing plays the 150 ms dropdown close before the popover leaves the page.
+const gone=async(page,msg)=>{await page.locator('.illustrative-pop').waitFor({state:'detached',timeout:2000}).catch(()=>{throw Error(msg)})};
 let passed=0;const ok=m=>{passed++;console.log('PASS',m)};
 
 (async()=>{
@@ -21,10 +23,10 @@ let passed=0;const ok=m=>{passed++;console.log('PASS',m)};
    const text=await pop.innerText();
    for(const t of ['examples you enter','never connects to a bank, Groww or any investment account','LifeFlow’s server and Groq','Reset illustrative data'])assert(text.includes(t),`explains: ${t}`);
    assert.equal(await pill.getAttribute('aria-expanded'),'true');
-   await page.keyboard.press('Escape');assert.equal(await page.locator('.illustrative-pop').count(),0,'Escape closes');
+   await page.keyboard.press('Escape');await gone(page,'Escape closes');
    assert.equal(await page.evaluate(()=>document.activeElement?.textContent?.includes('Illustrative mode')),true,'focus returns to the pill');
-   await pill.click();await pop.waitFor();await page.mouse.click(400,600);assert.equal(await page.locator('.illustrative-pop').count(),0,'outside click closes');
-   await pill.click();await pill.click();assert.equal(await page.locator('.illustrative-pop').count(),0,'second click closes');
+   await pill.click();await pop.waitFor();await page.mouse.click(400,600);await gone(page,'outside click closes');
+   await pill.click();await pill.click();await gone(page,'second click closes');
    await page.keyboard.press('Tab');await pill.focus();await page.keyboard.press('Enter');await pop.waitFor();ok(`${theme}: opens on click and keyboard; closes on Escape, outside click and second click`);
    await ctx.close();
   }

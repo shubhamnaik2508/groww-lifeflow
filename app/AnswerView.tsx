@@ -1,5 +1,7 @@
 'use client';
+import {useEffect,useRef} from 'react';
 import type {CompanionAnswer} from '../lib/ai/pipeline';
+import {openPanel} from './motion';
 import type {GateCheck} from '../lib/ai/gate';
 
 const mark:Record<GateCheck['status'],string>={passed:'✓',failed:'✕',not_run:'–',not_applicable:'·'};
@@ -33,7 +35,9 @@ const icon={ok:'✓',fail:'✕',info:'ℹ',skip:'–'};
 
 export default function AnswerView({answer,disclaimer}:{answer:CompanionAnswer;disclaimer:string}){
  const List=({title,items}:{title:string;items:string[]})=>items.length?<div className="answer-block"><b>{title}</b><ul>{items.map(x=><li key={x}>{x}</li>)}</ul></div>:null;
- return <div className="answer" aria-live="polite">
+ const root=useRef<HTMLDivElement>(null);
+ useEffect(()=>{openPanel(root.current)},[]);
+ return <div ref={root} className="answer t-panel-slide" data-open="false" aria-live="polite">
   <div className="eyebrow">RESPONSE · {answer.scenario.toUpperCase()}</div>
   <div className={`simulation-badge kind-${answer.kind}`}>{answer.label}</div>
   <div className="verification" aria-label="Verification summary"><b>Verification</b><ul>{verificationLines(answer).map(l=><li key={l.text} className={`v-${l.state}`}><span aria-hidden="true">{icon[l.state]}</span> {l.text}</li>)}</ul></div>

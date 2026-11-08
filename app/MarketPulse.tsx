@@ -25,7 +25,7 @@ export default function MarketPulse(){
  useEffect(()=>{let live=true;fetch(API).then(r=>r.json()).then((x:Pulse)=>{if(live)setPulse(x)}).catch(()=>{if(live)setPulse({status:'error',message:'Market Pulse data could not be loaded. The SIP Decision Explorer below still works.'})});return()=>{live=false}},[]);
  const snap=pulse?.status==='ok'?pulse.snapshot:null;
  return <div className="mp">
-  <div className="page-heading mp-heading"><div className="eyebrow"><span/>MARKET PULSE</div><h1>Understand the market. <em>Evaluate your options.</em></h1><p>Stay informed with end-of-day market context, explained with sources, next to a neutral comparison of your SIP choices.</p></div>
+  <div className="page-heading mp-heading t-stagger"><div className="eyebrow t-stagger-line t-stagger-line--1"><span/>MARKET PULSE</div><h1 className="t-stagger-line t-stagger-line--2">Understand the market. <em>Evaluate your options.</em></h1><p className="t-stagger-line t-stagger-line--3">Stay informed with end-of-day market context, explained with sources, next to a neutral comparison of your SIP choices.</p></div>
   <Hero pulse={pulse}/>
   <Explorer snap={snap}/>
   <History snap={snap}/>
@@ -70,7 +70,7 @@ function Hero({pulse}:{pulse:Pulse|null}){
     {pulse?.status==='ok'&&!open&&<span className={`mp-badge ${pulse.freshness.status}`}>{pulse.freshness.status==='current'?'Latest session':pulse.freshness.status==='possibly-stale'?'May be one session behind (or a market holiday)':`Stale: ${pulse.freshness.weekdaysBehind} weekdays behind`}</span>}</div></div>
   {pulse?.status==='ok'&&pulse.freshness.status==='stale'&&<p className="mp-stale" role="status">The latest refresh did not complete, so this is the last verified brief ({day(pulse.snapshot.sessionDate)}). Figures are not updated or estimated.</p>}
   <IndexCards snap={snap}/>
-  {pulse?.status==='ok'?<Verdict pulse={pulse}/>:<div className="mp-unavailable" role="status"><b>{pulse?'The daily AI brief is not available right now.':'Loading the daily brief…'}</b>{pulse&&<p>{pulse.message}</p>}{pulse&&<p>The SENSEX widget above and the SIP Decision Explorer below work without it.</p>}</div>}
+  {pulse?.status==='ok'?<Verdict pulse={pulse}/>:<div className="mp-unavailable" role="status"><b>{pulse?'The daily AI brief is not available right now.':<span className="t-shimmer" data-text="Loading the daily brief…">Loading the daily brief…</span>}</b>{pulse&&<p>{pulse.message}</p>}{pulse&&<p>The SENSEX widget above and the SIP Decision Explorer below work without it.</p>}</div>}
  </section>;
 }
 function Verdict({pulse}:{pulse:Extract<Pulse,{status:'ok'}>}){
