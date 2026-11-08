@@ -13,7 +13,7 @@ async function setup(browser,opts={}){
  const ctx=await browser.newContext({viewport:{width:1366,height:900},...opts});
  await ctx.addInitScript(()=>{try{localStorage.setItem('lifeflow-onboarded','yes')}catch{}});
  const page=await ctx.newPage();page.setDefaultTimeout(8000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(base+'/');
+ await page.goto(base+'/?app');
  await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');
  return {ctx,page,errors};
 }

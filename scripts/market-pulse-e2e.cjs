@@ -39,7 +39,7 @@ const fulfil=body=>route=>route.fulfill({status:200,contentType:'application/jso
   await page.route('**/api/market-pulse',fulfil({status:'ok',snapshot,freshness:{status:'current',weekdaysBehind:0,latestPossible:'2026-11-06'},checkedAt:'2026-11-07T13:30:00Z',lastRunFailed:false}));
 
   // 2. Navigation: Market Pulse is reachable from the sidebar; existing items remain.
-  await page.goto(base+'/');
+  await page.goto(base+'/?app');
   for(const n of ['Home','Scenario Lab','AI Companion','My Journey','AI Reliability','Market Pulse'])assert(await page.locator('.sidebar nav').getByRole('button',{name:n,exact:true}).isVisible(),n);
   const navOrder=await page.locator('.sidebar nav button .nav-label').allInnerTexts();
   assert.deepEqual(navOrder,['Home','Scenario Lab','Market Pulse','AI Companion','My Journey','AI Reliability'],'Market Pulse sits above AI Companion');

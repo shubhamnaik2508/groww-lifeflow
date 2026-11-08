@@ -8,7 +8,7 @@ let passed=0;async function check(name,fn){try{await fn();passed++;console.log(`
  const browser=await chromium.launch({executablePath:edge,headless:true});
  const page=await browser.newPage({viewport:{width:320,height:700},isMobile:true,hasTouch:true});page.setDefaultTimeout(8000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(base);await page.getByRole('button',{name:/I understand/}).click();
+ await page.goto(base+'/?app');await page.getByRole('button',{name:/I understand/}).click();
  await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');await page.getByLabel('Upcoming SIP date').fill('2026-12-05');
  const lab=async()=>{await page.locator('.mobile-nav').getByRole('button',{name:/Scenario Lab/}).click()};
  const pick=async n=>{await page.getByRole('button',{name:n}).click()};

@@ -78,7 +78,7 @@ const radio=(page,name)=>page.getByRole('radio',{name});
   });
   if(process.env.LIFEFLOW_LIVE_AI==='1')await check('live: both real providers answer the reference question with LifeFlow’s figures',async()=>{
    const {ctx,page}=await open(browser);
-   await page.goto(base+'/');await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');
+   await page.goto(base+'/?app');await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');
    await page.locator('.sidebar').getByRole('button',{name:/Scenario Lab/}).click();await page.getByLabel('Expense amount (₹)').fill('5000');await page.getByLabel('Expense category').fill('Health');await page.getByRole('button',{name:'See the impact'}).click();
    await page.locator('.sidebar').getByRole('button',{name:/AI Companion/}).click();
    for(const [p,id] of [['Google Gemini','gemini'],['Groq','groq']]){

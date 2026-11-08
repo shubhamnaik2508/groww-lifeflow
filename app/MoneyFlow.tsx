@@ -17,7 +17,7 @@ export type FlowPart={id:'expenses'|'sip'|'change'|'remaining';label:string;amou
 
 const W=600,H=220,SRC_X=104,SRC_TOP=48,SRC_H=120,END_X=W-14,MAX_COINS=6;
 type Geo={d:string;w:number;y1:number};
-function geometry(parts:FlowPart[],basis:number):Record<string,Geo>{
+export function geometry(parts:FlowPart[],basis:number):Record<string,Geo>{
  const rows=parts.length===4?[36,84,132,180]:[48,108,168];
  let cum=0;const out:Record<string,Geo>={};
  parts.forEach((p,i)=>{
@@ -26,7 +26,7 @@ function geometry(parts:FlowPart[],basis:number):Record<string,Geo>{
  });
  return out;
 }
-const basisOf=(salary:number,parts:FlowPart[])=>Math.max(salary,parts.reduce((s,p)=>s+Math.max(0,p.amount),0),1);
+export const basisOf=(salary:number,parts:FlowPart[])=>Math.max(salary,parts.reduce((s,p)=>s+Math.max(0,p.amount),0),1);
 /** More coins travel along bigger streams (1–6), so the share of money is visible in the motion too. */
 const coinCount=(amount:number,basis:number)=>amount>0?Math.max(1,Math.min(MAX_COINS,Math.round(amount/basis*12))):0;
 type Layer='stream'|'shadow'|'hl'|'cap';

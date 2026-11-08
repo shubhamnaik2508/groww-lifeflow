@@ -29,7 +29,7 @@ const measure=()=>{
  for(const [w,h] of widths){
   const ctx=await browser.newContext({viewport:{width:w,height:h},isMobile:w<700,hasTouch:w<700});const page=await ctx.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-  await page.goto(base);await page.getByRole('heading',{name:/Life happens/}).waitFor();
+  await page.goto(base+'/?app');await page.getByRole('heading',{name:/Life happens/}).waitFor();
   if(w===320)await page.screenshot({path:path.join(out,'320-home-onboarding.png'),fullPage:false});
   const ack=page.getByRole('button',{name:/I understand/});if(await ack.count())await ack.click();
   await page.getByLabel('Monthly take-home salary (₹)').fill('30000');await page.getByLabel('Recurring expenses (₹)').fill('18000');await page.getByLabel('Monthly SIP commitment (₹)').fill('3000');await page.getByLabel('Upcoming SIP date').fill('2026-12-05');
