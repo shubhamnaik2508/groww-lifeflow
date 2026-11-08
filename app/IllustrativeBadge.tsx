@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useId,useRef,useState} from 'react';
 import './illustrative-badge.css';
+import {cssMs} from './motion';
 
 /**
  * The "Illustrative mode" pill in the top bar. It looks exactly as before; clicking or tapping it opens a short
@@ -23,7 +24,7 @@ export default function IllustrativeBadge(){
   if(open){setMounted(true);return}
   const el=pop.current;if(!el)return;
   el.classList.remove('is-open');el.classList.add('is-closing');
-  const closeMs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dropdown-close-dur'))||150;
+  const closeMs=cssMs('--dropdown-close-dur',150);
   const t=setTimeout(()=>{el.classList.remove('is-closing');setMounted(false)},closeMs);
   return()=>clearTimeout(t);
  },[open]);
