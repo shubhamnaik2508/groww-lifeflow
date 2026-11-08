@@ -75,7 +75,9 @@ export default function LiquidLogo({theme}:{theme:string}){
   const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
   const pos=gl.getAttribLocation(prog,'a_position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
   gl.uniform1f(u('u_patternScale'),PARAMS.patternScale);gl.uniform1f(u('u_refraction'),PARAMS.refraction);gl.uniform1f(u('u_edge'),PARAMS.edge);gl.uniform1f(u('u_patternBlur'),PARAMS.patternBlur);gl.uniform1f(u('u_liquid'),PARAMS.liquid);
-  const size=()=>{const r=el.getBoundingClientRect();const d=Math.min(2,window.devicePixelRatio||1);el.width=Math.max(1,Math.round(r.width*d));el.height=Math.max(1,Math.round(r.height*d));gl.viewport(0,0,el.width,el.height)};
+  // Layout size (offsetWidth), not getBoundingClientRect: the hero's spin-in scales and rotates the logo, which would
+  // otherwise size the canvas too small (soft) or too large while the animation runs.
+  const size=()=>{const d=Math.min(2,window.devicePixelRatio||1);el.width=Math.max(1,Math.round(el.offsetWidth*d));el.height=Math.max(1,Math.round(el.offsetHeight*d));gl.viewport(0,0,el.width,el.height)};
   const draw=()=>{const [l,k]=colours.current;gl.uniform3fv(u('u_light'),hex(l));gl.uniform3fv(u('u_dark'),hex(k));gl.uniform1f(u('u_time'),time);gl.drawArrays(gl.TRIANGLE_STRIP,0,4)};
   redraw.current=()=>{if(!disposed)draw()};
   const loop=(now:number)=>{if(disposed)return;const dt=now-last;last=now;if(visible&&!document.hidden&&!reduce.matches){time+=dt*PARAMS.speed;draw()}raf=requestAnimationFrame(loop)};
