@@ -35,6 +35,16 @@ const norm=s=>s.replace(/\s+/g,' ').trim();
    await page.getByLabel('Companion mode').selectOption('live');const n=norm(await page.locator('.provider-note').innerText());assert.match(n,/Why “Recommended”\? Google Gemini is LifeFlow’s default choice for this demo; it is not a claim that one model is better/);
    assert.equal(await page.locator('.provider-badge.recommended').getAttribute('title'),'LifeFlow’s default choice, not a quality claim');
   });
+  for(const [device,opts] of [['desktop',{viewport:{width:1366,height:900}}],['phone',{viewport:{width:390,height:844},isMobile:true,hasTouch:true}]])await check(`${device}: typing into an empty (0) money field starts fresh: 1500, never 01500`,async()=>{
+   const c=await browser.newContext(opts);await c.addInitScript(()=>{try{localStorage.setItem('lifeflow-onboarded','yes')}catch{}});const p=await c.newPage();await p.goto(base+'/?app');
+   const salary=p.getByLabel('Monthly take-home salary (₹)');
+   assert.equal(await salary.inputValue(),'','an untouched field is empty');assert.equal(await salary.getAttribute('placeholder'),'0','with a 0 placeholder');
+   await salary.click();await p.keyboard.type('1500');assert.equal(await salary.inputValue(),'1500');
+   await salary.fill('');await salary.click();await p.keyboard.type('01500');assert.equal(await salary.inputValue(),'1500','leading zero stripped');
+   await salary.fill('0.5');assert.equal(await salary.inputValue(),'0.5','decimals kept');
+   const sip=p.getByLabel('Monthly SIP commitment (₹)');await sip.click();await p.keyboard.press('End');await p.keyboard.type('3000');assert.equal(await sip.inputValue(),'3000');
+   await c.close();
+  });
   await check('no page errors',async()=>assert.deepEqual(errors,[]));
   console.log(`RESULT ${passed} passed`);
  }catch(e){console.error('FAIL',e.message);process.exitCode=1}finally{await browser.close()}
