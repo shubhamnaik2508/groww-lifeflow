@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {openPanel} from './motion';
+import type {ProviderStatus} from './ProviderPicker';
 import {calculateScenario,type Profile,type Scenario} from '../lib/calc';
 import {runCompanion,type CompanionAnswer} from '../lib/ai/pipeline';
 import {PROMPT_VERSION} from '../lib/ai/prompt';
@@ -12,23 +13,26 @@ import type {BrowserModel} from './useBrowserModel';
 const DEFAULT_PROFILE:Profile={salary:30000,expenses:18000,sip:3000,sipDate:''};
 const API='/api/lifeflow/companion';
 const PUBLISHED='/evaluation/lifeflow-human-review.json';
-type Mode='groq'|'browser'|'rules';
+type Mode='gemini'|'groq'|'browser'|'rules';
+const live=(m:Mode):m is 'gemini'|'groq'=>m==='gemini'||m==='groq';
 type Run={answer:CompanionAnswer;timestamp:string;mode:Mode;behaviour_match:boolean|null;failure_category:string};
 type Review={factual:string;grounding:string;context:string;safety:string;abstention:string;result:string;correction:string;failure_category:string;reviewer:string};
 const blankReview:Review={factual:'',grounding:'',context:'',safety:'',abstention:'',result:'',correction:'',failure_category:'',reviewer:''};
 const dimensions=[['factual','Factual accuracy'],['grounding','Source grounding'],['context','Context relevance'],['safety','Investment safety'],['abstention','Appropriate abstention']] as const;
 const kindLabel={'human-labelled':'Human-labelled evaluation data','engineering-fixture':'Engineering fixture · not evaluation evidence','simulation':'Simulation · not evaluation evidence'};
-const modeLabel:Record<Mode,string>={groq:'LifeFlow AI (Groq, server)',browser:'Experimental on-device model',rules:'Rule-based guide (not AI)'};
+const modeLabel:Record<Mode,string>={gemini:'LifeFlow AI (Google Gemini, server)',groq:'LifeFlow AI (Groq, server)',browser:'Experimental on-device model',rules:'Rule-based guide (not AI)'};
 
 function toScenario(c:EvalCase,profile:Profile):Scenario|null{
  if(!c.scenario)return null;
  return {...calculateScenario(c.scenario.type,c.scenario.inputs,profile),id:`eval-${c.id}`,createdAt:new Date(0).toISOString(),inputs:c.scenario.inputs,profile};
 }
 
-export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserModel;aiAvailable:boolean;aiModel:string|null}){
+export default function Reliability({model,providers}:{model:BrowserModel;providers:ProviderStatus}){
  const [dataset,setDataset]=useState<Dataset|null>(null),[cases,setCases]=useState<EvalCase[]>([]),[runs,setRuns]=useState<Record<string,Run>>({}),[reviews,setReviews]=useState<Record<string,Review>>({});
  const [message,setMessage]=useState(''),[busy,setBusy]=useState(false),[progress,setProgress]=useState(''),[selected,setSelected]=useState('');
- const [mode,setMode]=useState<Mode>('groq');
+ const [mode,setMode]=useState<Mode>('gemini');
+ const ready=(m:'gemini'|'groq')=>Boolean(providers?.[m]?.available);
+ const runWith=(m:'gemini'|'groq')=>`${modeLabel[m]}${providers?(ready(m)?` · ${providers[m].model}`:' · not available'):''}`;
  const casesPanel=useRef<HTMLElement>(null);
  useEffect(()=>{openPanel(casesPanel.current)},[cases.length]);
  async function load(file:File){
@@ -52,9 +56,9 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
  }
  async function answerCase(c:EvalCase,m:Mode):Promise<CompanionAnswer>{
   const profile=c.profile||DEFAULT_PROFILE;let scenario:Scenario|null=null;try{scenario=toScenario(c,profile)}catch{}
-  if(m==='groq'){
+  if(live(m)){
    try{
-    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:c.question,profile,scenario:c.scenario?{type:c.scenario.type,inputs:c.scenario.inputs,profile}:null})});
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:c.question,profile,provider:m,scenario:c.scenario?{type:c.scenario.type,inputs:c.scenario.inputs,profile}:null})});
     const body=await r.json();if(r.ok&&body?.kind)return body;
     return runCompanion({question:c.question,profile,scenario,unavailable:{code:String(body?.error||'service_error'),message:String(body?.message||'The AI service returned an error.')}});
    }catch{return runCompanion({question:c.question,profile,scenario,unavailable:{code:'network_error',message:'The AI service could not be reached.'}})}
@@ -70,7 +74,7 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
    const observed=observedBehaviour(answer);
    const result:Run={answer,timestamp:answer.created_at,mode,behaviour_match:c.expected_behaviour?observed===c.expected_behaviour:null,failure_category:failureCategory(answer)};
    setRuns(r=>({...r,[c.id]:result}));
-   if(mode==='groq'&&i<cases.length-1)await new Promise(r=>setTimeout(r,8000));
+   if(live(mode)&&i<cases.length-1)await new Promise(r=>setTimeout(r,8000));
   }
   setBusy(false);setProgress('');setMessage(`Run complete with ${modeLabel[mode]}. Automated gate results and behaviour matches are shown per case; correctness needs human review.`);
  }
@@ -82,7 +86,7 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
  const compared=runList.filter(r=>r.behaviour_match!==null);const matched=compared.filter(r=>r.behaviour_match).length;
  const reviewed=Object.entries(reviews).filter(([id,r])=>r.result&&runs[id]);const outcomes=reviewed.reduce<Record<string,number>>((acc,[,r])=>({...acc,[r.result]:(acc[r.result]||0)+1}),{});
  const current=cases.find(c=>c.id===selected),currentRun=runs[selected],review={...blankReview,...reviews[selected]};
- const canRun=mode==='groq'?true:mode==='browser'?model.status==='ready':true;
+ const canRun=live(mode)?true:mode==='browser'?model.status==='ready':true;
  return <>
   <div className="metrics">
    <div><span>GENUINE LABELLED CASES</span><strong>{genuine}</strong><small>{dataset&&dataset.kind!=='human-labelled'?'Import is not human-labelled · excluded':'Human-labelled with provenance'}</small></div>
@@ -96,12 +100,12 @@ export default function Reliability({model,aiAvailable,aiModel}:{model:BrowserMo
    <p>Import a LifeFlow evaluation file (<code>fixtures/README.md</code>) or an Evidence Log export from <code>scripts/export-evidence-log.mjs</code>. Each case runs through the same pipeline and evaluation gate as the AI Companion. Cases may carry their own illustrative profile and scenario; otherwise ₹30,000 salary, ₹18,000 expenses and ₹3,000 SIP are used.</p>
    <div className="model-actions">
     <label className="outline file-label">Import JSON <input type="file" accept="application/json,.json" aria-label="Import evaluation JSON" onChange={e=>{const f=e.target.files?.[0];if(f)void load(f);e.currentTarget.value=''}}/></label>
-    <label className="field eval-mode"><span>Run with</span><select value={mode} onChange={e=>setMode(e.target.value as Mode)} disabled={busy}><option value="groq">{modeLabel.groq}{aiAvailable?` · ${aiModel}`:' · not configured'}</option><option value="rules">{modeLabel.rules}</option><option value="browser">{modeLabel.browser}</option></select></label>
+    <label className="field eval-mode"><span>Run with</span><select value={mode} onChange={e=>setMode(e.target.value as Mode)} disabled={busy}><option value="gemini">{runWith('gemini')}</option><option value="groq">{runWith('groq')}</option><option value="rules">{modeLabel.rules}</option><option value="browser">{modeLabel.browser}</option></select></label>
     <button className="outline" disabled={busy} onClick={()=>void loadPublished()}>Load published review</button>
     <button className="primary" disabled={!cases.length||busy||!canRun} onClick={()=>void run()}>{busy?'Running…':'Run cases'}</button>
     {Object.keys(runs).length>0&&<button className="outline" onClick={download}>Export runs and reviews</button>}
    </div>
-   {mode==='groq'&&!aiAvailable&&<p className="answer-notice">The AI service is not configured on this server, so every case will show the labelled fallback. That run tests failure handling, not the AI.</p>}
+   {live(mode)&&providers&&!ready(mode)&&<p className="answer-notice">{modeLabel[mode]} is not available on this server right now, so every case will show the labelled fallback. That run tests failure handling, not the AI.</p>}
    {mode==='browser'&&model.status!=='ready'&&<details className="eval-model" open><summary>Load the experimental on-device model first</summary><ModelPanel model={model} compact/></details>}
    {progress&&<p role="status"><span className="t-shimmer" data-text={progress}>{progress}</span></p>}
    <p role="status">{message||'No labelled examples imported.'}</p>

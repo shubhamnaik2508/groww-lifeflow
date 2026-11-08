@@ -1,6 +1,7 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 import {APIError,APIConnectionError,APIConnectionTimeoutError,AuthenticationError,BadRequestError,InternalServerError,NotFoundError,RateLimitError} from 'groq-sdk';
 import {clientIdentity} from './request-security';
+import {MemoryStore} from './ai/public-guard';
 
 // Replace only the Groq client class; the SDK's real error classes stay in use so the adapter's mapping is tested.
 const create=vi.fn();
@@ -11,16 +12,19 @@ const profile={salary:30000,expenses:18000,sip:3000,sipDate:'2026-12-05'};
 const expense={type:'expense',inputs:{amount:'5000',category:'Health',frequency:'one-time'},profile};
 // Each request gets its own client address so the real limiter does not throttle unrelated tests.
 let ip=0;
-const post=(body:unknown,headers:Record<string,string>={})=>POST(new Request('http://localhost/api/lifeflow/companion',{method:'POST',headers:{'x-vercel-forwarded-for':`198.51.100.${(ip++%250)+1}`,...headers},body:typeof body==='string'?body:JSON.stringify(body)}));
+const post=(body:unknown,headers:Record<string,string>={})=>POST(new Request('http://localhost/api/lifeflow/companion',{method:'POST',headers:{'x-vercel-forwarded-for':`198.51.100.${(ip++%250)+1}`,...headers},body:typeof body==='string'?body:JSON.stringify(body&&typeof body==='object'&&!('provider' in body)?{...body,provider:'groq'}:body)}));
+// A fake Upstash REST endpoint backed by an in-memory store, so the real guard and REST client run in tests.
+let store=new MemoryStore();
+const fakeFetch=vi.fn(async(url:string|URL|Request,init?:RequestInit)=>{const u=String(url);if(u.startsWith('https://test-store.upstash.io/pipeline')){const cmds=JSON.parse(String(init?.body));return new Response(JSON.stringify((await store.pipeline(cmds)).map(result=>({result}))),{status:200})}throw new Error('unexpected fetch '+u)});
 const good={summary:'The one-time expense lowers your estimated remaining cash for this month.',points:[{text:'Before the expense, LifeFlow estimates {scenario_before} left after your recurring expenses and SIP.',supports:['scenario_before']},{text:'After the one-time expense of {one_time_expense}, the estimate becomes {scenario_after}.',supports:['one_time_expense','scenario_after']}],missing_information:[],next_steps:['Review the expenses you entered for this month.'],uncertainty:'This estimate may differ from your actual bank balance.',requires_abstention:false,abstention_reason:''};
 const reply=(content:string,finish='stop')=>({choices:[{message:{content},finish_reason:finish}]});
 const KEY='gsk_test_key_never_shown_1234567890';
-beforeEach(()=>{create.mockReset();vi.stubEnv('VERCEL','1');vi.stubEnv('LIFEFLOW_RATE_LIMIT_MODE','memory');vi.stubEnv('UPSTASH_REDIS_REST_URL','');vi.stubEnv('GROQ_MODEL','');vi.stubEnv('LIFEFLOW_AI_ENABLED','')});
-afterEach(()=>vi.unstubAllEnvs());
+beforeEach(()=>{create.mockReset();store=new MemoryStore();vi.stubGlobal('fetch',fakeFetch);vi.stubEnv('VERCEL','1');vi.stubEnv('AI_DEMO_ENABLED','true');vi.stubEnv('KV_REST_API_URL','https://test-store.upstash.io');vi.stubEnv('KV_REST_API_TOKEN','test-store-token');vi.stubEnv('UPSTASH_REDIS_REST_URL','');vi.stubEnv('UPSTASH_REDIS_REST_TOKEN','');vi.stubEnv('GEMINI_API_KEY','');vi.stubEnv('GROQ_MODEL','');vi.stubEnv('LIFEFLOW_AI_ENABLED','')});
+afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals()});
 
 describe('status endpoint',()=>{
- it('reports missing configuration without exposing anything secret',async()=>{vi.stubEnv('GROQ_API_KEY','');const body=await (await GET()).json();expect(body).toMatchObject({provider:'groq',ai_available:false,unavailable_reason:'missing_key',model:'openai/gpt-oss-120b'})});
- it('reports availability and the pinned model but never the key',async()=>{vi.stubEnv('GROQ_API_KEY',KEY);vi.stubEnv('GROQ_MODEL','openai/gpt-oss-20b');const text=await (await GET()).text();expect(JSON.parse(text)).toMatchObject({ai_available:true,model:'openai/gpt-oss-20b'});expect(text).not.toContain(KEY)});
+ it('reports missing configuration without exposing anything secret',async()=>{vi.stubEnv('GROQ_API_KEY','');const body=await (await GET()).json();expect(body.providers.groq).toMatchObject({available:false,unavailable_reason:'missing_key',model:'openai/gpt-oss-120b'})});
+ it('reports availability and the pinned model but never the key',async()=>{vi.stubEnv('GROQ_API_KEY',KEY);vi.stubEnv('GROQ_MODEL','openai/gpt-oss-20b');const text=await (await GET()).text();expect(JSON.parse(text).providers.groq).toMatchObject({available:true,model:'openai/gpt-oss-20b'});expect(text).not.toContain(KEY)});
 });
 
 describe('Groq companion endpoint',()=>{
@@ -59,8 +63,8 @@ describe('request boundaries',()=>{
  it('rejects oversized streams even when Content-Length is missing',async()=>{const body=new ReadableStream({start(c){c.enqueue(new Uint8Array(6000));c.enqueue(new Uint8Array(6000));c.close()}});const r=await POST(new Request('http://localhost/api/lifeflow/companion',{method:'POST',headers:{'x-vercel-forwarded-for':'198.51.100.251'},body,duplex:'half'} as RequestInit));expect(r.status).toBe(413)});
  it('counts UTF-8 bytes rather than decoded characters',async()=>{expect((await post({question:'₹'.repeat(4000),profile})).status).toBe(413)});
  it('rejects unsupported content encodings',async()=>{expect((await post({question:'Help',profile},{'content-encoding':'gzip'})).status).toBe(415)});
- it('fails closed on Vercel without a configured limiter, and allows the explicit memory mode',async()=>{vi.stubEnv('LIFEFLOW_RATE_LIMIT_MODE','');const r=await post({question:'What is an SIP?',profile},{'x-vercel-forwarded-for':'203.0.113.9'});expect(r.status).toBe(503);vi.stubEnv('LIFEFLOW_RATE_LIMIT_MODE','memory');vi.stubEnv('GROQ_API_KEY','');expect((await post({question:'What is an SIP?',profile},{'x-vercel-forwarded-for':'203.0.113.9'})).status).toBe(200)});
- it('limits each client to 20 requests a minute',async()=>{vi.stubEnv('VERCEL','1');vi.stubEnv('LIFEFLOW_RATE_LIMIT_MODE','memory');vi.stubEnv('GROQ_API_KEY','');const h={'x-vercel-forwarded-for':'203.0.113.77'};const statuses:number[]=[];for(let i=0;i<21;i++)statuses.push((await post({question:'What is an SIP?',profile},h)).status);expect(statuses.slice(0,20).every(s=>s===200)).toBe(true);expect(statuses[20]).toBe(429)});
+ it('fails closed on Vercel when the shared store is not configured',async()=>{vi.stubEnv('GROQ_API_KEY',KEY);vi.stubEnv('KV_REST_API_URL','');vi.stubEnv('KV_REST_API_TOKEN','');const r=await post({question:'What is an SIP?',profile});expect(r.status).toBe(503);expect((await r.json()).error).toBe('protection_unavailable');expect(create).not.toHaveBeenCalled()});
+ it('limits each visitor to 6 AI requests a minute in the shared store',async()=>{vi.stubEnv('GROQ_API_KEY',KEY);create.mockResolvedValue(reply(JSON.stringify(good)));const h={'x-vercel-forwarded-for':'203.0.113.77'};const statuses:number[]=[];for(let i=0;i<7;i++)statuses.push((await post({question:'How does this expense affect my cash?',profile,scenario:expense},h)).status);expect(statuses.slice(0,6)).toEqual([200,200,200,200,200,200]);expect(statuses[6]).toBe(429);expect(create).toHaveBeenCalledTimes(6)});
  it('ignores forged forwarded headers outside Vercel',()=>{vi.stubEnv('VERCEL','');expect(clientIdentity(new Headers({'x-forwarded-for':'203.0.113.1'}))).toBe('local')});
  it('accepts only a single Vercel-provided address',()=>{vi.stubEnv('VERCEL','1');expect(clientIdentity(new Headers({'x-vercel-forwarded-for':'203.0.113.1'}))).toBe('203.0.113.1');expect(clientIdentity(new Headers({'x-vercel-forwarded-for':'203.0.113.1, 203.0.113.2'}))).toBe('unknown')});
 });

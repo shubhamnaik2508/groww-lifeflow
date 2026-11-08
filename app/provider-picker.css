@@ -1,0 +1,45 @@
+/* AI provider picker (AI Companion). Scoped to .provider-picker; follows the existing card, badge and theme palette. */
+.provider-picker{border:0;margin:20px 0 0;padding:0;min-width:0}
+.provider-picker legend{padding:0;margin-bottom:10px;color:#63766c;font-size:11px;font-weight:700}
+.provider-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.provider-option{position:relative;display:grid;gap:6px;align-content:start;padding:14px 14px 12px;border-radius:14px;cursor:pointer;
+ border:1px solid rgba(16,104,82,.18);background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(240,248,243,.75));
+ backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 10px 26px -22px rgba(16,60,48,.6);
+ transition:border-color 150ms ease-out,box-shadow 250ms cubic-bezier(0.22,1,0.36,1),transform 250ms cubic-bezier(0.22,1,0.36,1)}
+.provider-option:hover{border-color:rgba(16,104,82,.42);transform:translateY(-1px)}
+.provider-option.selected{border-color:#1f8a63;box-shadow:0 0 0 1px #1f8a63,0 14px 30px -22px rgba(16,60,48,.7)}
+/* The native radio covers the whole card (invisible), so clicks, taps, keyboard and assistive tools all reach it. */
+.provider-option input{position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.provider-option:has(input:focus-visible){outline:3px solid #20875f;outline-offset:2px}
+.provider-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.provider-head b{font-family:Manrope,sans-serif;font-size:14px;color:#172420}
+.provider-badge{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:4px 8px;border-radius:999px;white-space:nowrap}
+.provider-badge.recommended{background:#113c30;color:#e9fff5}
+.provider-badge.alternative{background:#eef3ef;color:#38644a;border:1px solid #d5e3d9}
+.provider-desc{color:#4f6359;font-size:12px;line-height:1.45}
+.provider-state{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;font-weight:700;color:#2b6a50}
+.provider-state code{font-size:11px;font-weight:600}
+.provider-dot{width:7px;height:7px;border-radius:50%;background:#22b07c;box-shadow:0 0 0 3px rgba(34,176,124,.16)}
+.provider-option.unavailable .provider-state{color:#8a5a1c}
+.provider-option.unavailable .provider-dot{background:#d08a2e;box-shadow:0 0 0 3px rgba(208,138,46,.18)}
+.provider-note{margin:8px 0 0;color:#5f7469;font-size:11px;line-height:1.5}
+.provider-switch{margin-top:10px}
+
+.app[data-theme="blue-oceanic"] .provider-option{border-color:rgba(16,104,122,.2);background:linear-gradient(160deg,rgba(255,255,255,.94),rgba(235,246,249,.78))}
+.app[data-theme="blue-oceanic"] .provider-option.selected{border-color:#10687a;box-shadow:0 0 0 1px #10687a,0 14px 30px -22px rgba(16,60,80,.7)}
+.app[data-theme="blue-oceanic"] .provider-badge.recommended{background:#124b61;color:#eafaff}
+.app[data-theme="blue-oceanic"] .provider-head b{color:#153448}
+.app[data-theme="blue-oceanic"] .provider-state{color:#10687a}
+
+.app[data-theme="dark-warm"] .provider-picker legend{color:#e0cbbc}
+.app[data-theme="dark-warm"] .provider-option{border-color:#5b493c;background:linear-gradient(160deg,rgba(54,43,36,.92),rgba(38,31,26,.85))}
+.app[data-theme="dark-warm"] .provider-option.selected{border-color:#dca06d;box-shadow:0 0 0 1px #dca06d,0 14px 30px -22px rgba(0,0,0,.8)}
+.app[data-theme="dark-warm"] .provider-head b{color:#fff0e4}
+.app[data-theme="dark-warm"] .provider-badge.recommended{background:#dca06d;color:#26190f}
+.app[data-theme="dark-warm"] .provider-badge.alternative{background:#3a2e27;color:#f3cda7;border-color:#5b493c}
+.app[data-theme="dark-warm"] .provider-desc,.app[data-theme="dark-warm"] .provider-note{color:#d1bbaa}
+.app[data-theme="dark-warm"] .provider-state{color:#9fe3c2}
+.app[data-theme="dark-warm"] .provider-option.unavailable .provider-state{color:#f7d4b2}
+
+@media(max-width:520px){.provider-options{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.provider-option{transition:none}.provider-option:hover{transform:none}}
