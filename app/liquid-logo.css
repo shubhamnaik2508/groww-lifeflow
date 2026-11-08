@@ -1,0 +1,7 @@
+/* Liquid-metal ✳ (LiquidLogo). The glyph keeps the hero layout and is the fallback until WebGL2 is ready. */
+.liquid-logo{position:relative;display:inline-block;line-height:1}
+.liquid-glyph{transition:opacity 400ms ease}
+.liquid-canvas{position:absolute;left:50%;top:50%;width:1.18em;height:1.18em;transform:translate(-50%,-50%);opacity:0;transition:opacity 700ms ease;pointer-events:none}
+.liquid-logo.is-ready .liquid-canvas{opacity:1}
+.liquid-logo.is-ready .liquid-glyph{opacity:0}
+@media (prefers-reduced-motion:reduce){.liquid-glyph,.liquid-canvas{transition:none}}

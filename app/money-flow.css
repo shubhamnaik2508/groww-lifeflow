@@ -1,0 +1,42 @@
+/* Money-flow animation (GSAP). Colours follow each theme's existing flow palette. */
+.money-flow,.scenario-flow,.salary-timeline{--mf-source:#113c30;--mf-source-hi:#2f7a5c;--mf-shade:#0b2a1f;--mf-expenses:#8cac94;--mf-sip:#288d68;--mf-change:#d0703f;--mf-remaining:#a8dcb5;--tl-axis:#c9dccd;--tl-gap:#f6dcb4;--tl-gap-line:#b9772a}
+.app[data-theme="blue-oceanic"] .money-flow,.app[data-theme="blue-oceanic"] .scenario-flow,.app[data-theme="blue-oceanic"] .salary-timeline{--mf-source:#124b61;--mf-source-hi:#2f8aa6;--mf-shade:#0a2c3b;--mf-expenses:#8db7c3;--mf-sip:#278fa3;--mf-remaining:#a3dfe1;--tl-axis:#c4dfe5}
+.app[data-theme="dark-warm"] .money-flow,.app[data-theme="dark-warm"] .scenario-flow,.app[data-theme="dark-warm"] .salary-timeline{--mf-source:#a8693a;--mf-source-hi:#f0b77e;--mf-shade:#000;--mf-expenses:#a2826e;--mf-sip:#d99c6d;--mf-change:#e8794a;--mf-remaining:#eac8a5;--tl-axis:#5b493c;--tl-gap:#5a3f2b;--tl-gap-line:#f0b77e}
+.money-flow{width:100%;margin:14px 0 12px}
+.money-flow{perspective:1100px}
+/* A slight backwards tilt gives the flow a tabletop depth; the drawing itself stays flat SVG. */
+.money-flow svg{display:block;width:100%;height:auto;aspect-ratio:600/220;overflow:visible;transform:rotateX(14deg);transform-origin:50% 100%}
+.mf-vault-hi{stop-color:var(--mf-source-hi)}.mf-vault-lo{stop-color:var(--mf-source)}
+.mf-vault-shadow{fill:var(--mf-shade);opacity:.28}
+.mf-vault-gloss{fill:#fff;opacity:.22}
+.mf-rupee{fill:#fff;font:700 46px Manrope,sans-serif;text-anchor:middle;dominant-baseline:central;opacity:.92}
+.mf-floor{fill:var(--mf-shade);opacity:.1}
+.mf-shadow{fill:none;stroke:var(--mf-shade);stroke-opacity:.2}
+.mf-hl{fill:none;stroke:#fff;stroke-opacity:.4;stroke-linecap:round}
+.mf-cap{fill:currentColor;stroke:#fff;stroke-opacity:.55;stroke-width:1}
+.mf-coin{stroke:#a06d12;stroke-width:.8}
+.mf-stream{fill:none;stroke-linecap:butt}
+.mf-expenses{stroke:var(--mf-expenses);background:var(--mf-expenses);color:var(--mf-expenses)}
+.mf-sip{stroke:var(--mf-sip);background:var(--mf-sip);color:var(--mf-sip)}
+.mf-change{stroke:var(--mf-change);background:var(--mf-change);color:var(--mf-change)}
+.mf-remaining{stroke:var(--mf-remaining);background:var(--mf-remaining);color:var(--mf-remaining)}
+.mf-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
+.scenario-flow{margin:16px 0 6px}
+.scenario-flow .flow-legend span{font-size:11px}
+.salary-timeline{margin:16px 0 6px}
+.salary-timeline svg{display:block;width:100%;height:auto;aspect-ratio:600/80;overflow:visible}
+.tl-axis{stroke:var(--tl-axis);stroke-width:3;stroke-linecap:round}
+.tl-gap{fill:var(--tl-gap);stroke:var(--tl-gap-line);stroke-width:1}
+.tl-tick{stroke:var(--mf-expenses);stroke-width:2}
+.tl-debit{stroke:var(--mf-sip);stroke-width:3}
+.tl-arrive{stroke:var(--mf-remaining);stroke-width:3}
+.tl-coin{fill:var(--mf-sip)}
+.tl-labels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-size:11px;color:#5c6b63;margin-top:6px}
+.tl-labels span:nth-child(2){text-align:center}.tl-labels span:nth-child(3){text-align:right}
+.tl-labels b{display:block;font-size:13px;color:#254638}
+.tl-note{font-size:12px;margin:8px 0 0;color:#2b6a50}
+.tl-note.warn{color:#8a5a1c}
+.app[data-theme="dark-warm"] .tl-labels{color:#d2bdaa}.app[data-theme="dark-warm"] .tl-labels b{color:#fff0df}
+.app[data-theme="dark-warm"] .tl-note{color:#9fe3c2}.app[data-theme="dark-warm"] .tl-note.warn{color:#f7d4b2}
+.app[data-theme="blue-oceanic"] .tl-labels b{color:#153448}
+@media (prefers-reduced-motion:reduce){.money-flow svg{transform:none}}
