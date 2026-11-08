@@ -18,13 +18,13 @@ const mockAnswer={kind:'model',label:'AI-generated · passed every quality check
 
 (async()=>{
  const browser=await chromium.launch({executablePath:edge,headless:true});
- await check('real server without a key: Groq is default, status is honest, answer is a labelled fallback with correct figures',async()=>{
+ await check('real server: Gemini is default, Groq can be chosen, status is honest, answers are live or a labelled fallback with correct figures',async()=>{
   const page=await browser.newPage({viewport:{width:1440,height:900}});const errors=[];page.on('pageerror',e=>errors.push(e.message));await setup(page);
-  assert.equal(await page.getByLabel('Companion mode').inputValue(),'groq');
+  assert.equal(await page.getByRole('radio',{name:/Google Gemini/}).isChecked(),true);await page.getByRole('radio',{name:/Groq/}).check();
   const status=await (await page.request.get(base+'/api/lifeflow/companion')).json();
-  if(status.ai_available){console.log('  (server has a Groq key: checking a live answer instead)');await ask(page,'How does this expense affect my cash?');assert.match(await page.locator('.answer .simulation-badge').innerText(),/AI-generated|Rule-based/);}
+  if(status.providers.groq.available){console.log('  (server has a Groq key: checking a live answer instead)');await ask(page,'How does this expense affect my cash?');assert.match(await page.locator('.answer .simulation-badge').innerText(),/AI-generated|Rule-based/);}
   else{
-   await page.getByText(/not configured on this server yet/).waitFor();await ask(page,'How does this expense affect my cash?');
+   await page.locator('.ai-status').getByText(/not available on this server|paused/).waitFor();await ask(page,'How does this expense affect my cash?');
    assert.match(await page.locator('.answer .simulation-badge').innerText(),/Rule-based guide · not AI/);assert.match(await page.locator('.answer-notice').innerText(),/no Groq API key/);
    assert.match(await page.locator('.verification').innerText(),/No AI answer was produced/);
    const calc=await page.locator('.answer .fact-list').nth(1).innerText();assert.match(calc,/9,000\.00/);assert.match(calc,/4,000\.00/);
@@ -34,7 +34,7 @@ const mockAnswer={kind:'model',label:'AI-generated · passed every quality check
  await check('rendering of a gate-passed AI answer: verification panel, claims with support, model id (mocked API)',async()=>{
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   await page.route('**/api/lifeflow/companion',r=>r.request().method()==='GET'?r.fulfill({json:{provider:'groq',ai_available:true,model:'openai/gpt-oss-120b',prompt_version:'lifeflow-agent-v3',unavailable_reason:null,rate_limit:'memory'}}):r.fulfill({json:mockAnswer}));
-  await setup(page);await page.getByText(/AI service ready/).waitFor();await ask(page,'How does this expense affect my cash?');
+  await setup(page);await page.locator('.ai-status').getByText(/Answering with/).waitFor();await ask(page,'How does this expense affect my cash?');
   const v=await page.locator('.verification').innerText();assert.match(v,/Passed the evaluation gate/);assert.match(v,/Calculation consistency/);assert.match(v,/Source support/);assert.match(v,/Safety screening/);assert.match(v,/Missing information identified \(1\)/);
   assert.match(await page.locator('.claims').innerText(),/Based on: LifeFlow calculation/);assert.match(await page.locator('.model-meta').innerText(),/openai\/gpt-oss-120b/);
   assert(await page.locator('.answer-disclaimer').getByText(/does not provide investment advice/).isVisible());await page.close();

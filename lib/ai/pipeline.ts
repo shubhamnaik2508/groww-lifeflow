@@ -8,7 +8,7 @@ import {buildUserMessage,GENERATION,PROMPT_VERSION,responseSchema,supportIds,SYS
 export type ChatMessage={role:'system'|'user';content:string};
 /** Returns the model's raw text. Implemented by the Groq adapter (server), the WebLLM adapter (browser) or test doubles. */
 export type Generate=(request:{messages:ChatMessage[];schema:Record<string,unknown>;signal:AbortSignal;onProgress?:(tokens:number)=>void})=>Promise<string>;
-export type ModelInfo={id:string;name:string;library:string;provider:'groq'|'webllm'|'test'};
+export type ModelInfo={id:string;name:string;library:string;provider:'gemini'|'groq'|'webllm'|'test'};
 
 /** A provider failure with a stable code and a user-safe message. Never carries credentials or inputs. */
 export class ProviderError extends Error{
